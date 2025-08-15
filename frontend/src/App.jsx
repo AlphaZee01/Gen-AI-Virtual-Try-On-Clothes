@@ -2,31 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Select } from 'antd'; 
-import {
-  Layout,
-  ConfigProvider,
-  theme,
-  Button,
-  Typography,
-  Space,
-  Switch,
-  Input,
-  Row,
-  Col,
-  Divider,
-} from "antd";
-import {
-  BulbOutlined,
-  BulbFilled,
-  GithubOutlined,
-  LinkedinOutlined,
-} from "@ant-design/icons";
+import { Moon, Sun, Upload, X } from "lucide-react";
+
+import { Button } from "./components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
+import { Input } from "./components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
 
 import ImageUpload from "./components/ImageUpload";
-import Footer from './components/Footer'; 
-const { Header, Content} = Layout;
-const { Title, Text } = Typography;
+import Footer from './components/Footer';
 
 function App() {
   const [personImage, setPersonImage] = useState(null);
@@ -45,14 +29,15 @@ function App() {
   const [garmentType, setGarmentType] = useState("");
   const [style, setStyle] = useState("");
 
-  const { Option } = Select;
-
   const resultRef = useRef(null);
-
-  const { defaultAlgorithm, darkAlgorithm } = theme;
 
   useEffect(() => {
     localStorage.setItem("darkMode", JSON.stringify(isDarkMode));
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, [isDarkMode]);
 
   useEffect(() => {
@@ -104,316 +89,279 @@ function App() {
     }
   };
 
-  const bgColor = isDarkMode ? "#0f0f0f" : "#f9fafb";
-  const cardColor = isDarkMode ? "#1c1c1c" : "#ffffff";
-  const textColor = isDarkMode ? "#e4e4e4" : "#111827";
-  const subText = isDarkMode ? "#9ca3af" : "#4b5563";
-
   return (
-    <ConfigProvider
-      theme={{
-        algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
-        token: {
-          colorPrimary: "#0ea5e9",
-          borderRadius: 10,
-        },
-      }}
-    >
-      <Layout style={{ minHeight: "100vh", background: bgColor }}>
-        <Header
-          style={{
-            background: "transparent",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "1.5rem 2rem",
-          }}
-        >
-          <Title level={3} style={{ margin: 0, color: textColor }}>
-            👗 Virtual Try-On
-          </Title>
-          <Switch
-            checked={isDarkMode}
-            onChange={setIsDarkMode}
-            checkedChildren={<BulbFilled />}
-            unCheckedChildren={<BulbOutlined />}
-          />
-        </Header>
-        <Content style={{ padding: "2rem 1rem" }}>
-          <div className="max-w-5xl mx-auto">
-            <Title
-              level={1}
-              className="text-center"
-              style={{ color: textColor, marginBottom: 40 }}
-            >
+    <div className="min-h-screen bg-background text-foreground font-sans">
+      {/* Header */}
+      <header className="border-b bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-4">
+                         <div className="flex items-center space-x-2">
+               <img 
+                 src="/uwear transparent logo.PNG"
+                 alt="Uwear Logo"
+                 className="h-14"
+               />
+                                            <div>
+                 <h1 className="text-2xl font-bold text-foreground">
+                   Virtual Try-On
+                 </h1>
+                 <p className="text-sm text-muted-foreground">
+                   Powered by Uwear
+                 </p>
+               </div>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className="rounded-full"
+          >
+            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </Button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-foreground mb-4">
               Try-On Clothes in Seconds
-            </Title>
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Upload your photo and garment to see how it looks on you
+            </p>
+          </div>
 
-            <form onSubmit={handleSubmit}>
-              <Row gutter={[24, 24]}>
-                {/* Model Section */}
-                <Col xs={24} md={12}>
-                  <div
-                    style={{
-                      background: cardColor,
-                      padding: 24,
-                      borderRadius: 12,
-                    }}
-                  >
-                    <Title
-                      level={4}
-                      style={{ color: textColor, marginBottom: 16 }}
-                    >
-                      Model Image
-                    </Title>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Upload Sections */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Model Section */}
+              <Card className="border-2 border-dashed border-muted-foreground/20 hover:border-uwear-orange/50 transition-colors">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Upload className="h-5 w-5 text-uwear-orange" />
+                    Model Image
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <ImageUpload
+                    label="Upload Person Image"
+                    onImageChange={setPersonImage}
+                    isDarkMode={isDarkMode}
+                  />
 
-                    <ImageUpload
-                      label="Upload Model Image"
-                      onImageChange={setPersonImage}
-                      isDarkMode={isDarkMode}
-                    />
+                  <div className="space-y-4">
+                    {/* Model Type */}
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                        Model Type
+                      </label>
+                      <Select value={modelType} onValueChange={setModelType}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select model type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="professional">Professional</SelectItem>
+                          <SelectItem value="casual">Casual</SelectItem>
+                          <SelectItem value="fashion">Fashion</SelectItem>
+                          <SelectItem value="street">Street Style</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                    <div className="mt-6 space-y-4">
-                      {/* Model Type */}
-                      <div>
-                        <Text style={{ color: subText }}>Model Type</Text>
-                        <Select
-                          placeholder="Select model type"
-                          style={{ width: "100%", marginTop: 4 }}
-                          value={modelType}
-                          onChange={setModelType}
-                        >
-                          <Option value="top">Top Half</Option>
-                          <Option value="bottom">Bottom Half</Option>
-                          <Option value="full">Full Body</Option>
-                        </Select>
-                      </div>
-
-                      {/* Gender */}
-                      <div>
-                        <Text style={{ color: subText }}>Gender</Text>
-                        <Select
-                          placeholder="Select gender"
-                          style={{ width: "100%", marginTop: 4 }}
-                          value={gender}
-                          onChange={setGender}
-                        >
-                          <Option value="male">Male</Option>
-                          <Option value="female">Female</Option>
-                          <Option value="unisex">Unisex</Option>
-                        </Select>
-                      </div>
+                    {/* Gender */}
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                        Gender
+                      </label>
+                      <Select value={gender} onValueChange={setGender}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="male">Male</SelectItem>
+                          <SelectItem value="female">Female</SelectItem>
+                          <SelectItem value="unisex">Unisex</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
-                </Col>
+                </CardContent>
+              </Card>
 
-                {/* Garment Section */}
-                <Col xs={24} md={12}>
-                  <div
-                    style={{
-                      background: cardColor,
-                      padding: 24,
-                      borderRadius: 12,
-                    }}
-                  >
-                    <Title
-                      level={4}
-                      style={{ color: textColor, marginBottom: 16 }}
-                    >
-                      Garment Image
-                    </Title>
+              {/* Garment Section */}
+              <Card className="border-2 border-dashed border-muted-foreground/20 hover:border-uwear-orange/50 transition-colors">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Upload className="h-5 w-5 text-uwear-orange" />
+                    Garment Image
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <ImageUpload
+                    label="Upload Cloth Image"
+                    onImageChange={setClothImage}
+                    isDarkMode={isDarkMode}
+                  />
 
-                    <ImageUpload
-                      label="Upload Cloth Image"
-                      onImageChange={setClothImage}
-                      isDarkMode={isDarkMode}
-                    />
+                  <div className="space-y-4">
+                    {/* Garment Type */}
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                        Garment Type
+                      </label>
+                      <Select value={garmentType} onValueChange={setGarmentType}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select garment type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="shirt">Shirt</SelectItem>
+                          <SelectItem value="pants">Pants</SelectItem>
+                          <SelectItem value="jacket">Jacket</SelectItem>
+                          <SelectItem value="dress">Dress</SelectItem>
+                          <SelectItem value="tshirt">T-shirt</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                    <div className="mt-6 space-y-4">
-                      {/* Garment Type */}
-                      <div>
-                        <Text style={{ color: subText }}>Garment Type</Text>
-                        <Select
-                          placeholder="Select garment type"
-                          style={{ width: "100%", marginTop: 4 }}
-                          value={garmentType}
-                          onChange={setGarmentType}
-                        >
-                          <Option value="shirt">Shirt</Option>
-                          <Option value="pants">Pants</Option>
-                          <Option value="jacket">Jacket</Option>
-                          <Option value="dress">Dress</Option>
-                          <Option value="tshirt">T-shirt</Option>
-                        </Select>
-                      </div>
-
-                      {/* Style */}
-                      <div>
-                        <Text style={{ color: subText }}>Style</Text>
-                        <Select
-                          placeholder="Select style"
-                          style={{ width: "100%", marginTop: 4 }}
-                          value={style}
-                          onChange={setStyle}
-                        >
-                          <Option value="casual">Casual</Option>
-                          <Option value="formal">Formal</Option>
-                          <Option value="streetwear">Streetwear</Option>
-                          <Option value="traditional">Traditional</Option>
-                          <Option value="sports">Sportswear</Option>
-                        </Select>
-                      </div>
+                    {/* Style */}
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground mb-2 block">
+                        Style
+                      </label>
+                      <Select value={style} onValueChange={setStyle}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select style" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="casual">Casual</SelectItem>
+                          <SelectItem value="formal">Formal</SelectItem>
+                          <SelectItem value="streetwear">Streetwear</SelectItem>
+                          <SelectItem value="traditional">Traditional</SelectItem>
+                          <SelectItem value="sports">Sportswear</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
-                </Col>
-              </Row>
+                </CardContent>
+              </Card>
+            </div>
 
-              {/* Instructions */}
-              <div style={{ marginTop: "2.5rem" }}>
-                <Title
-                  level={5}
-                  style={{ color: textColor, marginBottom: "0.5rem" }}
-                >
-                  Special Instructions
-                </Title>
-                <Input.TextArea
+            {/* Instructions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Special Instructions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <textarea
                   value={instructions}
                   onChange={(e) => setInstructions(e.target.value)}
-                  rows={4}
                   placeholder="e.g. Fit for walking pose, crop top, side view preferred..."
-                  style={{
-                    borderRadius: 10,
-                    padding: "1rem",
-                    fontSize: "1rem",
-                    backgroundColor: isDarkMode ? "#1f1f1f" : "#ffffff",
-                    color: textColor,
-                    borderColor: isDarkMode ? "#333" : "#d1d5db",
-                  }}
+                  className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                 />
-              </div>
+              </CardContent>
+            </Card>
 
-              {/* Submit Button */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  marginTop: "3rem",
-                }}
+            {/* Submit Button */}
+            <div className="flex justify-center">
+              <Button
+                type="submit"
+                variant="uwear"
+                size="lg"
+                disabled={loading}
+                className="px-8 py-3 text-lg font-semibold"
               >
-                <Button
-                  type="primary"
-                  size="large"
-                  htmlType="submit"
-                  loading={loading}
-                  style={{
-                    height: 48,
-                    width: 200,
-                    fontSize: 16,
-                    borderRadius: 8,
-                  }}
-                >
-                  {loading ? "Processing..." : "Try On"}
-                </Button>
-              </div>
-            </form>
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    Processing...
+                  </div>
+                ) : (
+                  "Generate Virtual Try-On"
+                )}
+              </Button>
+            </div>
+          </form>
 
-            {result && (
-              <div ref={resultRef} className="mt-20">
-                <Divider />
-                <Title
-                  level={3}
-                  style={{
-                    color: textColor,
-                    textAlign: "center",
-                    marginBottom: 32,
-                  }}
-                >
-                  Your Try-On Result
-                </Title>
-                <div className="flex justify-center">
-                  <img
-                    src={result.resultImage}
-                    alt="Try-On Result"
-                    style={{
-                      borderRadius: 16,
-                      boxShadow: "0 10px 40px rgba(0,0,0,0.3)",
-                      maxHeight: 480,
-                    }}
-                  />
-                </div>
-                <Text
-                  style={{
-                    display: "block",
-                    textAlign: "center",
-                    marginTop: 16,
-                    color: isDarkMode ? "#ffffff" : "#000000",
-                    fontSize: "1.25rem",
-                    fontWeight: "600"
-                  }}
-                >
-                  {result.text}
-                </Text>
-              </div>
-            )}
+          {/* Results Section */}
+          {result && (
+            <div ref={resultRef} className="mt-12">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    ✨ Try-On Result
+                    <span className="text-sm font-normal text-muted-foreground">
+                      {result.timestamp}
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex justify-center">
+                    <img
+                      src={result.resultImage}
+                      alt="Try-on result"
+                      className="max-w-full h-auto rounded-lg shadow-lg border"
+                    />
+                  </div>
+                  {result.text && (
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p className="text-sm text-muted-foreground">{result.text}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-            {history.length > 0 && (
-              <div className="mt-24">
-                <Divider />
-                <Title level={3} style={{ color: textColor, marginBottom: 32 }}>
-                  Previous Results
-                </Title>
-                <Row gutter={[24, 24]}>
-                  {history.map((item) => (
-                    <Col xs={24} sm={12} md={8} key={item.id}>
-                      <div
-                        style={{
-                          background: cardColor,
-                          padding: 16,
-                          borderRadius: 12,
-                        }}
-                      >
-                        <img
-                          src={item.resultImage}
-                          alt="Previous"
-                          style={{
-                            width: "100%",
-                            borderRadius: 10,
-                            marginBottom: 12,
-                          }}
-                        />
-                        <Text
-                          style={{
-                            display: "block",
-                            color: isDarkMode ? "#ffffff" : "#000000",
-                            fontSize: "1.25rem",
-                            fontWeight: "600",
-                            marginBottom: 4,
-                          }}
-                        >
-                          {item.text}
-                        </Text>
-                        <Text
-                          style={{
-                            color: isDarkMode ? "#777" : "#666",
-                            fontSize: 12,
-                          }}
-                        >
-                          {item.timestamp}
-                        </Text>
+          {/* History Section */}
+          {history.length > 0 && (
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold text-foreground mb-6">Previous Results</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {history.slice(1).map((item) => (
+                  <Card key={item.id} className="overflow-hidden">
+                    <CardContent className="p-0">
+                      <img
+                        src={item.resultImage}
+                        alt="Previous result"
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="p-4">
+                        <p className="text-sm text-muted-foreground">{item.timestamp}</p>
+                        {item.text && (
+                          <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                            {item.text}
+                          </p>
+                        )}
                       </div>
-                    </Col>
-                  ))}
-                </Row>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            )}
-          </div>
-        </Content>
+            </div>
+          )}
+        </div>
+      </main>
 
-        <Footer isDarkMode={isDarkMode} />
+      {/* Footer */}
+      <Footer />
 
-        <ToastContainer theme={isDarkMode ? "dark" : "light"} />
-      </Layout>
-    </ConfigProvider>
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme={isDarkMode ? "dark" : "light"}
+      />
+    </div>
   );
 }
 

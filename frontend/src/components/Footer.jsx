@@ -1,36 +1,26 @@
-import { Typography } from "antd";
+import React from "react";
 
-const { Text } = Typography;
-
-const Footer = ({ isDarkMode }) => {
-  const background = isDarkMode ? "#1a1a1a" : "#f0f0f0";
-  const textColor = isDarkMode ? "#cccccc" : "#333333";
-
+const Footer = () => {
   return (
-    <footer
-      style={{
-        backgroundColor: background,
-        padding: "1.5rem 1rem",
-        textAlign: "center",
-        marginTop: "4rem",
-      }}
-    >
-      <Text style={{ color: textColor, fontSize: 14 }}>
-        Developed by{" "}
-        <a
-          href="https://www.narenderkeswani.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            color: textColor,
-            textDecoration: "underline",
-            fontWeight: 500,
-          }}
-        >
-          Narender Keswani
-        </a>{" "}
-        • All rights reserved © {new Date().getFullYear()}
-      </Text>
+    <footer className="border-t bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50 mt-16">
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex flex-col items-center justify-center space-y-3">
+                     {/* Logo and Brand */}
+           <div className="flex items-center space-x-2">
+             <img 
+               src="/uwear transparent logo.PNG"
+               alt="Uwear Logo"
+               className="h-10"
+             />
+             <span className="text-sm font-semibold text-foreground">Uwear</span>
+           </div>
+          
+          {/* Copyright */}
+          <p className="text-xs text-muted-foreground text-center">
+            © {new Date().getFullYear()} Uwear. All rights reserved.
+          </p>
+        </div>
+      </div>
     </footer>
   );
 };
