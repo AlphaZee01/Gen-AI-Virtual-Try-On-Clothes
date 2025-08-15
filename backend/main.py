@@ -4,6 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+@app.get("/")
+def root():
+    return {"message": "Virtual Try-On API is running"}
+
 # Allow frontend to connect
 app.add_middleware(
     CORSMiddleware,

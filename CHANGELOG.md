@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - Frontend setup with npm dependencies
 - Environment configuration for Google Gemini API
 - **✅ requirements.txt**: Created requirements.txt file from Poetry dependencies for pip-based installation
+- **✅ Root API Endpoint**: Added root endpoint (/) to main.py that returns API status message
 
 ### Changed
 - Removed "Developed by" note from footer component
