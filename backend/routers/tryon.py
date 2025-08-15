@@ -8,7 +8,10 @@ from google.genai import types
 import traceback
 import base64
 
-load_dotenv()
+try:
+    load_dotenv()
+except Exception as e:
+    print(f"Warning: Could not load .env file: {e}")
 
 router = APIRouter()
 
