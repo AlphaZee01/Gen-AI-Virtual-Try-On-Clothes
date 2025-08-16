@@ -16,6 +16,10 @@ All notable changes to this project will be documented in this file.
 - **Updated Python version requirements to be compatible with MediaPipe (<3.13)**
 - **Added runtime.txt to specify Python 3.11.9 for deployment platforms**
 - **Implemented fallback person segmentation and body detection when MediaPipe is unavailable**
+- **Made MediaPipe optional dependency for universal deployment compatibility**
+- **Added render.yaml configuration for Render.com deployment**
+- **Created separate requirements-mediapipe.txt for enhanced features**
+- **Added comprehensive deployment guide with troubleshooting**
 
 ### Added
 - Enhanced virtual try-on system with advanced texture preservation
@@ -28,6 +32,9 @@ All notable changes to this project will be documented in this file.
 - **Fallback person segmentation using color-based detection**
 - **Fallback body detection using simple heuristics**
 - **Graceful degradation when MediaPipe is not available**
+- **Universal deployment compatibility across all Python versions**
+- **Optional MediaPipe installation for enhanced features**
+- **Comprehensive deployment documentation and guides**
 
 ### Changed
 - Replaced Gemini image generation with specialized virtual try-on processing
