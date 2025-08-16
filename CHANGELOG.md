@@ -22,6 +22,8 @@ All notable changes to this project will be documented in this file.
 - **Added comprehensive deployment guide with troubleshooting**
 - **✅ Configured for Python 3.11.9 with MediaPipe for enhanced features**
 - **✅ Updated requirements.txt to include MediaPipe by default**
+- **✅ Fixed port binding issue for Render.com deployment**
+- **✅ Added proper server configuration in main.py**
 
 ### Added
 - Enhanced virtual try-on system with advanced texture preservation
