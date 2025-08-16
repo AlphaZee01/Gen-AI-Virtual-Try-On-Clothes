@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 - Added onnxruntime dependency for rembg background removal
 - Implemented fallback background removal method when rembg is unavailable
 - Updated requirements.txt with all necessary computer vision dependencies
+- Updated Python from 3.12.0 to 3.12.10 for security and stability improvements
+- Updated pip from 23.2.1 to 25.2 for enhanced package management
 
 ### Added
 - Enhanced virtual try-on system with advanced texture preservation
