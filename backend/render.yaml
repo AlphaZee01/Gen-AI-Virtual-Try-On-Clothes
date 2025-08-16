@@ -3,11 +3,11 @@ services:
     name: uwear-virtual-try-on
     env: python
     buildCommand: cd ../frontend && npm ci && npm run build && cd ../backend && pip install -r requirements.txt
-    startCommand: python main.py
+    startCommand: python start_server.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
       - key: NODE_VERSION
         value: 18.0.0
-    healthCheckPath: /health
+    healthCheckPath: /startup
     autoDeploy: true

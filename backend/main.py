@@ -1,11 +1,12 @@
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from routers import tryon
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from pathlib import Path
 import sys
+import threading
+import time
 
 # Add detailed logging for debugging
 print("🚀 Starting Virtual Try-On API initialization...")
@@ -38,6 +39,28 @@ else:
         print(f"📁 Frontend directory exists: {list(frontend_dir.iterdir())}")
     else:
         print(f"❌ Frontend directory not found at: {frontend_dir}")
+
+# Global flag for MediaPipe initialization
+mediapipe_ready = False
+mediapipe_initializing = False
+
+def initialize_mediapipe():
+    """Initialize MediaPipe in background thread"""
+    global mediapipe_ready, mediapipe_initializing
+    mediapipe_initializing = True
+    print("🔄 Initializing MediaPipe in background...")
+    
+    try:
+        # Import and initialize MediaPipe
+        import mediapipe as mp
+        print("✅ MediaPipe imported successfully")
+        mediapipe_ready = True
+        print("✅ MediaPipe initialization completed")
+    except Exception as e:
+        print(f"❌ MediaPipe initialization failed: {e}")
+        mediapipe_ready = False
+    finally:
+        mediapipe_initializing = False
 
 @app.get("/")
 def root():
@@ -74,7 +97,7 @@ def startup_check():
 def health_check():
     return {
         "status": "healthy", 
-        "mediapipe": "available",
+        "mediapipe": "ready" if mediapipe_ready else "initializing" if mediapipe_initializing else "not_ready",
         "frontend_built": frontend_build_path.exists(),
         "frontend_path": str(frontend_build_path),
         "port": os.environ.get("PORT", "Not set"),
@@ -128,7 +151,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(tryon.router, prefix="/api")
+# Import and include router after MediaPipe is ready
+def include_router_when_ready():
+    """Include the tryon router when MediaPipe is ready"""
+    global mediapipe_ready
+    while not mediapipe_ready:
+        time.sleep(1)
+    
+    try:
+        from routers import tryon
+        app.include_router(tryon.router, prefix="/api")
+        print("✅ Try-on router included successfully")
+    except Exception as e:
+        print(f"❌ Failed to include try-on router: {e}")
 
 # Server configuration for deployment
 if __name__ == "__main__":
@@ -147,8 +182,16 @@ if __name__ == "__main__":
     print(f"🌐 Binding to port {port}...")
     print(f"🔗 Application will be available at: http://0.0.0.0:{port}")
     
+    # Start MediaPipe initialization in background
+    mediapipe_thread = threading.Thread(target=initialize_mediapipe, daemon=True)
+    mediapipe_thread.start()
+    
+    # Start router inclusion in background
+    router_thread = threading.Thread(target=include_router_when_ready, daemon=True)
+    router_thread.start()
+    
     try:
-        # Start server with immediate binding
+        # Start server immediately
         uvicorn.run(
             app, 
             host="0.0.0.0", 
