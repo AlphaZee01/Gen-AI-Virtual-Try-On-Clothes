@@ -3,7 +3,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Moon, Sun, Upload, X } from "lucide-react";
-import { API_ENDPOINTS } from "./config";
+import { API_ENDPOINTS, API_BASE_URL } from "./config";
 
 import { Button } from "./components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
