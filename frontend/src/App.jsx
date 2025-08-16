@@ -3,6 +3,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Moon, Sun, Upload, X } from "lucide-react";
+import { API_ENDPOINTS } from "./config";
 
 import { Button } from "./components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
@@ -40,6 +41,20 @@ function App() {
     }
   }, [isDarkMode]);
 
+  // Check backend health on component mount
+  useEffect(() => {
+    const checkBackendHealth = async () => {
+      try {
+        const response = await axios.get(API_ENDPOINTS.health);
+        console.log("Backend health check:", response.data);
+      } catch (error) {
+        console.warn("Backend health check failed:", error.message);
+      }
+    };
+    
+    checkBackendHealth();
+  }, []);
+
   useEffect(() => {
     if (result && resultRef.current) {
       resultRef.current.scrollIntoView({ behavior: "smooth" });
@@ -66,7 +81,7 @@ function App() {
     formData.append("style", style || "");
 
     try {
-      const response = await axios.post("http://localhost:8000/api/try-on", formData, {
+      const response = await axios.post(API_ENDPOINTS.tryOn, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

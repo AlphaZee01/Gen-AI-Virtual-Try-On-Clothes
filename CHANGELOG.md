@@ -24,6 +24,8 @@ All notable changes to this project will be documented in this file.
 - **✅ Updated requirements.txt to include MediaPipe by default**
 - **✅ Fixed port binding issue for Render.com deployment**
 - **✅ Added proper server configuration in main.py**
+- **✅ Fixed frontend API endpoint to use deployed backend URL**
+- **✅ Added environment-based API configuration**
 
 ### Added
 - Enhanced virtual try-on system with advanced texture preservation
