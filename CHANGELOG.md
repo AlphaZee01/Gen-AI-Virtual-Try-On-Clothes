@@ -12,6 +12,10 @@ All notable changes to this project will be documented in this file.
 - Updated requirements.txt with all necessary computer vision dependencies
 - Updated Python from 3.12.0 to 3.12.10 for security and stability improvements
 - Updated pip from 23.2.1 to 25.2 for enhanced package management
+- **Fixed MediaPipe import error by adding fallback support for Python 3.13+**
+- **Updated Python version requirements to be compatible with MediaPipe (<3.13)**
+- **Added runtime.txt to specify Python 3.11.9 for deployment platforms**
+- **Implemented fallback person segmentation and body detection when MediaPipe is unavailable**
 
 ### Added
 - Enhanced virtual try-on system with advanced texture preservation
@@ -21,6 +25,9 @@ All notable changes to this project will be documented in this file.
 - High-quality image interpolation (Lanczos4) for better detail preservation
 - Conservative lighting adjustment to maintain texture details
 - Enhanced sharpness and contrast preservation for clothing patterns
+- **Fallback person segmentation using color-based detection**
+- **Fallback body detection using simple heuristics**
+- **Graceful degradation when MediaPipe is not available**
 
 ### Changed
 - Replaced Gemini image generation with specialized virtual try-on processing

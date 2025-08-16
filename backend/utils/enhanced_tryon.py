@@ -3,11 +3,18 @@ import numpy as np
 from PIL import Image, ImageEnhance
 import io
 import base64
-import mediapipe as mp
 import os
 from typing import Tuple, Optional, List
 from scipy import ndimage
 from skimage import filters, feature
+
+# Try to import mediapipe, but provide fallback if not available
+try:
+    import mediapipe as mp
+    MEDIAPIPE_AVAILABLE = True
+except ImportError:
+    MEDIAPIPE_AVAILABLE = False
+    print("Warning: mediapipe not available. Using fallback pose detection and segmentation methods.")
 
 # Try to import rembg, but provide fallback if not available
 try:
@@ -19,15 +26,19 @@ except ImportError:
 
 class EnhancedVirtualTryOnProcessor:
     def __init__(self):
-        self.mp_pose = mp.solutions.pose
-        self.mp_selfie_segmentation = mp.solutions.selfie_segmentation
-        self.pose = self.mp_pose.Pose(
-            static_image_mode=True,
-            model_complexity=2,
-            enable_segmentation=True,
-            min_detection_confidence=0.5
-        )
-        self.segmentation = self.mp_selfie_segmentation.SelfieSegmentation(model_selection=1)
+        if MEDIAPIPE_AVAILABLE:
+            self.mp_pose = mp.solutions.pose
+            self.mp_selfie_segmentation = mp.solutions.selfie_segmentation
+            self.pose = self.mp_pose.Pose(
+                static_image_mode=True,
+                model_complexity=2,
+                enable_segmentation=True,
+                min_detection_confidence=0.5
+            )
+            self.segmentation = self.mp_selfie_segmentation.SelfieSegmentation(model_selection=1)
+        else:
+            self.pose = None
+            self.segmentation = None
         
     def preprocess_images(self, person_image_bytes: bytes, cloth_image_bytes: bytes) -> Tuple[np.ndarray, np.ndarray]:
         """Preprocess images for virtual try-on"""
@@ -45,54 +56,60 @@ class EnhancedVirtualTryOnProcessor:
         return person_rgb, cloth_rgb
     
     def get_person_segmentation(self, person_image: np.ndarray) -> np.ndarray:
-        """Get precise person segmentation using MediaPipe"""
-        # Convert to RGB for MediaPipe
-        rgb_image = cv2.cvtColor(person_image, cv2.COLOR_BGR2RGB)
-        
-        # Get segmentation mask
-        results = self.segmentation.process(rgb_image)
-        mask = results.segmentation_mask
-        
-        # Convert to binary mask
-        binary_mask = (mask > 0.1).astype(np.uint8) * 255
-        
-        # Apply morphological operations to clean up the mask
-        kernel = np.ones((5, 5), np.uint8)
-        binary_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_CLOSE, kernel)
-        binary_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_OPEN, kernel)
-        
-        return binary_mask
+        """Get precise person segmentation using MediaPipe or fallback method"""
+        if MEDIAPIPE_AVAILABLE and self.segmentation:
+            # Use MediaPipe for segmentation
+            rgb_image = cv2.cvtColor(person_image, cv2.COLOR_BGR2RGB)
+            
+            # Get segmentation mask
+            results = self.segmentation.process(rgb_image)
+            mask = results.segmentation_mask
+            
+            # Convert to binary mask
+            binary_mask = (mask > 0.1).astype(np.uint8) * 255
+            
+            # Apply morphological operations to clean up the mask
+            kernel = np.ones((5, 5), np.uint8)
+            binary_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_CLOSE, kernel)
+            binary_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_OPEN, kernel)
+            
+            return binary_mask
+        else:
+            # Fallback: Use simple color-based segmentation
+            return self._fallback_person_segmentation(person_image)
     
     def get_body_landmarks(self, person_image: np.ndarray) -> Optional[dict]:
-        """Get body landmarks using MediaPipe Pose"""
-        # Convert to RGB for MediaPipe
-        rgb_image = cv2.cvtColor(person_image, cv2.COLOR_BGR2RGB)
-        
-        # Get pose landmarks
-        results = self.pose.process(rgb_image)
-        
-        if results.pose_landmarks:
-            landmarks = results.pose_landmarks.landmark
-            h, w, _ = person_image.shape
+        """Get body landmarks using MediaPipe Pose or fallback method"""
+        if MEDIAPIPE_AVAILABLE and self.pose:
+            # Use MediaPipe for pose detection
+            rgb_image = cv2.cvtColor(person_image, cv2.COLOR_BGR2RGB)
             
-            # Extract key body points
-            body_points = {
-                'left_shoulder': (int(landmarks[self.mp_pose.PoseLandmark.LEFT_SHOULDER].x * w),
-                                 int(landmarks[self.mp_pose.PoseLandmark.LEFT_SHOULDER].y * h)),
-                'right_shoulder': (int(landmarks[self.mp_pose.PoseLandmark.RIGHT_SHOULDER].x * w),
-                                   int(landmarks[self.mp_pose.PoseLandmark.RIGHT_SHOULDER].y * h)),
-                'left_hip': (int(landmarks[self.mp_pose.PoseLandmark.LEFT_HIP].x * w),
-                             int(landmarks[self.mp_pose.PoseLandmark.LEFT_HIP].y * h)),
-                'right_hip': (int(landmarks[self.mp_pose.PoseLandmark.RIGHT_HIP].x * w),
-                              int(landmarks[self.mp_pose.PoseLandmark.RIGHT_HIP].y * h)),
-                'left_elbow': (int(landmarks[self.mp_pose.PoseLandmark.LEFT_ELBOW].x * w),
-                               int(landmarks[self.mp_pose.PoseLandmark.LEFT_ELBOW].y * h)),
-                'right_elbow': (int(landmarks[self.mp_pose.PoseLandmark.RIGHT_ELBOW].x * w),
-                                int(landmarks[self.mp_pose.PoseLandmark.RIGHT_ELBOW].y * h)),
-            }
-            return body_points
+            # Get pose landmarks
+            results = self.pose.process(rgb_image)
+            
+            if results.pose_landmarks:
+                landmarks = results.pose_landmarks.landmark
+                h, w, _ = person_image.shape
+                
+                # Extract key body points
+                body_points = {
+                    'left_shoulder': (int(landmarks[self.mp_pose.PoseLandmark.LEFT_SHOULDER].x * w),
+                                     int(landmarks[self.mp_pose.PoseLandmark.LEFT_SHOULDER].y * h)),
+                    'right_shoulder': (int(landmarks[self.mp_pose.PoseLandmark.RIGHT_SHOULDER].x * w),
+                                       int(landmarks[self.mp_pose.PoseLandmark.RIGHT_SHOULDER].y * h)),
+                    'left_hip': (int(landmarks[self.mp_pose.PoseLandmark.LEFT_HIP].x * w),
+                                 int(landmarks[self.mp_pose.PoseLandmark.LEFT_HIP].y * h)),
+                    'right_hip': (int(landmarks[self.mp_pose.PoseLandmark.RIGHT_HIP].x * w),
+                                  int(landmarks[self.mp_pose.PoseLandmark.RIGHT_HIP].y * h)),
+                    'left_elbow': (int(landmarks[self.mp_pose.PoseLandmark.LEFT_ELBOW].x * w),
+                                   int(landmarks[self.mp_pose.PoseLandmark.LEFT_ELBOW].y * h)),
+                    'right_elbow': (int(landmarks[self.mp_pose.PoseLandmark.RIGHT_ELBOW].x * w),
+                                    int(landmarks[self.mp_pose.PoseLandmark.RIGHT_ELBOW].y * h)),
+                }
+                return body_points
         
-        return None
+        # Fallback: Use simple heuristics for body detection
+        return self._fallback_body_detection(person_image)
     
     def enhance_texture_preservation(self, clothing: np.ndarray) -> np.ndarray:
         """Enhance texture and pattern preservation in clothing"""
@@ -200,6 +217,69 @@ class EnhancedVirtualTryOnProcessor:
         rgba[:, :, 3] = foreground_mask
         
         return rgba
+    
+    def _fallback_person_segmentation(self, person_image: np.ndarray) -> np.ndarray:
+        """Fallback person segmentation using color-based detection"""
+        # Convert to HSV for better color segmentation
+        hsv = cv2.cvtColor(person_image, cv2.COLOR_BGR2HSV)
+        
+        # Create a mask for skin tones (common human skin colors)
+        lower_skin = np.array([0, 20, 70])
+        upper_skin = np.array([20, 255, 255])
+        skin_mask = cv2.inRange(hsv, lower_skin, upper_skin)
+        
+        # Create a mask for clothing colors (avoid white/black backgrounds)
+        lower_clothing = np.array([0, 0, 30])
+        upper_clothing = np.array([180, 255, 220])
+        clothing_mask = cv2.inRange(hsv, lower_clothing, upper_clothing)
+        
+        # Combine masks
+        person_mask = cv2.bitwise_or(skin_mask, clothing_mask)
+        
+        # Apply morphological operations to clean up the mask
+        kernel = np.ones((5, 5), np.uint8)
+        person_mask = cv2.morphologyEx(person_mask, cv2.MORPH_CLOSE, kernel)
+        person_mask = cv2.morphologyEx(person_mask, cv2.MORPH_OPEN, kernel)
+        
+        # Find contours and keep the largest one (assumed to be the person)
+        contours, _ = cv2.findContours(person_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if contours:
+            largest_contour = max(contours, key=cv2.contourArea)
+            # Create a new mask with only the largest contour
+            person_mask = np.zeros_like(person_mask)
+            cv2.fillPoly(person_mask, [largest_contour], 255)
+        
+        return person_mask
+    
+    def _fallback_body_detection(self, person_image: np.ndarray) -> Optional[dict]:
+        """Fallback body detection using simple heuristics"""
+        h, w, _ = person_image.shape
+        
+        # Use simple heuristics based on image dimensions
+        # Assume person is roughly in the center and takes up most of the image
+        center_x = w // 2
+        center_y = h // 2
+        
+        # Estimate body proportions based on image size
+        shoulder_width = int(w * 0.3)  # Shoulders are about 30% of image width
+        body_height = int(h * 0.7)     # Body takes up about 70% of image height
+        
+        # Calculate estimated body points
+        left_shoulder_x = center_x - shoulder_width // 2
+        right_shoulder_x = center_x + shoulder_width // 2
+        shoulder_y = int(h * 0.2)  # Shoulders at about 20% from top
+        hip_y = int(h * 0.6)       # Hips at about 60% from top
+        
+        body_points = {
+            'left_shoulder': (left_shoulder_x, shoulder_y),
+            'right_shoulder': (right_shoulder_x, shoulder_y),
+            'left_hip': (left_shoulder_x, hip_y),
+            'right_hip': (right_shoulder_x, hip_y),
+            'left_elbow': (left_shoulder_x - 20, shoulder_y + 50),
+            'right_elbow': (right_shoulder_x + 20, shoulder_y + 50),
+        }
+        
+        return body_points
     
     def calculate_clothing_region(self, body_points: dict, garment_type: str) -> Tuple[int, int, int, int]:
         """Calculate the region where clothing should be placed based on body landmarks"""
