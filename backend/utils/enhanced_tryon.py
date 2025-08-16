@@ -431,37 +431,67 @@ class EnhancedVirtualTryOnProcessor:
                             garment_type: str = "", instructions: str = "") -> Tuple[np.ndarray, str]:
         """Main method to process virtual try-on with enhanced texture preservation"""
         try:
+            print("=== Enhanced Virtual Try-On Processing ===")
+            print(f"MediaPipe available: {MEDIAPIPE_AVAILABLE}")
+            print(f"REMBG available: {REMBG_AVAILABLE}")
+            
             # Preprocess images
             person_img, cloth_img = self.preprocess_images(person_image_bytes, cloth_image_bytes)
+            print(f"Person image shape: {person_img.shape}")
+            print(f"Cloth image shape: {cloth_img.shape}")
             
             # Get person segmentation
             person_mask = self.get_person_segmentation(person_img)
+            print(f"Person mask shape: {person_mask.shape}")
+            print(f"Person mask unique values: {np.unique(person_mask)}")
             
             # Get body landmarks
             body_points = self.get_body_landmarks(person_img)
+            print(f"Body points detected: {body_points is not None}")
+            if body_points:
+                print(f"Body points: {body_points}")
             
             # Extract clothing from garment image with texture preservation
             clothing = self.extract_clothing(cloth_img)
+            print(f"Extracted clothing shape: {clothing.shape}")
             
             # Calculate clothing region
             if body_points:
                 region = self.calculate_clothing_region(body_points, garment_type)
+                print(f"Calculated region: {region}")
                 resized_clothing = self.resize_clothing_to_region(clothing, region)
             else:
                 # Fallback to simple resizing
+                print("Using fallback resizing method")
                 contours, _ = cv2.findContours(person_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
                 if contours:
                     largest_contour = max(contours, key=cv2.contourArea)
                     x, y, w, h = cv2.boundingRect(largest_contour)
+                    print(f"Fallback region: x={x}, y={y}, w={w}, h={h}")
                     resized_clothing = cv2.resize(clothing, (w, h), interpolation=cv2.INTER_LANCZOS4)
                 else:
+                    print("No contours found, using original clothing size")
                     resized_clothing = clothing
+            
+            print(f"Resized clothing shape: {resized_clothing.shape}")
             
             # Apply texture-aware blending
             result = self.apply_texture_aware_blending(person_img, resized_clothing, person_mask, body_points, garment_type)
             
             # Enhance lighting consistency while preserving texture
             result = self.enhance_lighting_consistency(result, person_img)
+            
+            # Validate result
+            print(f"Final result shape: {result.shape}")
+            print(f"Result data type: {result.dtype}")
+            print(f"Result value range: {result.min()} to {result.max()}")
+            
+            # Basic validation - ensure result is not completely black or white
+            if result.mean() < 10 or result.mean() > 245:
+                print("WARNING: Result image appears to be mostly black or white!")
+                # Return original person image as fallback
+                result = person_img.copy()
+                description = "Warning: Processing failed, returning original image"
             
             # Generate description
             description = self.generate_description(garment_type, instructions, body_points is not None)

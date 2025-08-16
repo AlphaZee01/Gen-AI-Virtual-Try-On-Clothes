@@ -61,12 +61,21 @@ async def try_on(
             raise HTTPException(status_code=400, detail="Image exceeds 10MB size limit for cloth_image")
 
         # Process virtual try-on using the enhanced processor
+        print("Starting virtual try-on processing...")
+        print(f"Person image size: {len(person_bytes)} bytes")
+        print(f"Cloth image size: {len(cloth_bytes)} bytes")
+        print(f"Garment type: {garment_type}")
+        print(f"Instructions: {instructions}")
+        
         result_image, description = try_on_processor.process_virtual_tryon(
             person_bytes, 
             cloth_bytes, 
             garment_type, 
             instructions
         )
+        
+        print(f"Processing completed. Result image shape: {result_image.shape}")
+        print(f"Description: {description}")
         
         # Convert result to base64
         image_url = try_on_processor.numpy_to_base64(result_image)
