@@ -14,7 +14,14 @@ except Exception as e:
 router = APIRouter()
 
 # Initialize the enhanced virtual try-on processor
-try_on_processor = EnhancedVirtualTryOnProcessor()
+try_on_processor = None
+
+def get_try_on_processor():
+    """Get the try-on processor, initializing it if needed"""
+    global try_on_processor
+    if try_on_processor is None:
+        try_on_processor = EnhancedVirtualTryOnProcessor()
+    return try_on_processor
 
 @router.post("/try-on")
 async def try_on(
@@ -60,6 +67,9 @@ async def try_on(
         if size_in_mb_for_cloth_image > MAX_IMAGE_SIZE_MB:
             raise HTTPException(status_code=400, detail="Image exceeds 10MB size limit for cloth_image")
 
+        # Get the try-on processor
+        processor = get_try_on_processor()
+        
         # Process virtual try-on using the enhanced processor
         print("Starting virtual try-on processing...")
         print(f"Person image size: {len(person_bytes)} bytes")
@@ -67,7 +77,7 @@ async def try_on(
         print(f"Garment type: {garment_type}")
         print(f"Instructions: {instructions}")
         
-        result_image, description = try_on_processor.process_virtual_tryon(
+        result_image, description = processor.process_virtual_tryon(
             person_bytes, 
             cloth_bytes, 
             garment_type, 
@@ -78,7 +88,7 @@ async def try_on(
         print(f"Description: {description}")
         
         # Convert result to base64
-        image_url = try_on_processor.numpy_to_base64(result_image)
+        image_url = processor.numpy_to_base64(result_image)
         
         return JSONResponse(
             content={

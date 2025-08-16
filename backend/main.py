@@ -101,7 +101,11 @@ def health_check():
         "frontend_built": frontend_build_path.exists(),
         "frontend_path": str(frontend_build_path),
         "port": os.environ.get("PORT", "Not set"),
-        "current_dir": os.getcwd()
+        "current_dir": os.getcwd(),
+        "api_endpoints": {
+            "try_on": "/api/try-on",
+            "health": "/health"
+        }
     }
 
 @app.get("/test")
@@ -151,19 +155,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Import and include router after MediaPipe is ready
-def include_router_when_ready():
-    """Include the tryon router when MediaPipe is ready"""
-    global mediapipe_ready
-    while not mediapipe_ready:
-        time.sleep(1)
-    
-    try:
-        from routers import tryon
-        app.include_router(tryon.router, prefix="/api")
-        print("✅ Try-on router included successfully")
-    except Exception as e:
-        print(f"❌ Failed to include try-on router: {e}")
+# Import and include router immediately
+try:
+    from routers import tryon
+    app.include_router(tryon.router, prefix="/api")
+    print("✅ Try-on router included successfully")
+except Exception as e:
+    print(f"❌ Failed to include try-on router: {e}")
 
 # Server configuration for deployment
 if __name__ == "__main__":
@@ -185,10 +183,6 @@ if __name__ == "__main__":
     # Start MediaPipe initialization in background
     mediapipe_thread = threading.Thread(target=initialize_mediapipe, daemon=True)
     mediapipe_thread.start()
-    
-    # Start router inclusion in background
-    router_thread = threading.Thread(target=include_router_when_ready, daemon=True)
-    router_thread.start()
     
     try:
         # Start server immediately
