@@ -1,1 +1,1 @@
-web: python main.py
+web: cd ../frontend && npm ci --only=production && npm run build && cd ../backend && python main.py

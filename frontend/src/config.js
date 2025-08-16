@@ -4,21 +4,21 @@ const API_CONFIG = {
   development: {
     baseURL: 'http://localhost:8000',
   },
-  // Production environment
+  // Production environment - use relative URLs when served from same domain
   production: {
-    baseURL: 'https://uwear-ai-virtual-try-on-clothes.onrender.com',
+    baseURL: '', // Empty string for relative URLs when served from same domain
   }
 };
 
-// Get current environment - force production for now
-const environment = 'production'; // import.meta.env.MODE || 'development';
+// Get current environment
+const environment = import.meta.env.MODE || 'development';
 
 // Debug logging
 console.log('Environment:', environment);
 console.log('Import meta env:', import.meta.env);
 
 // Export the appropriate configuration
-export const API_BASE_URL = API_CONFIG[environment]?.baseURL || API_CONFIG.production.baseURL;
+export const API_BASE_URL = API_CONFIG[environment]?.baseURL || API_CONFIG.development.baseURL;
 
 // Debug logging
 console.log('API Base URL:', API_BASE_URL);

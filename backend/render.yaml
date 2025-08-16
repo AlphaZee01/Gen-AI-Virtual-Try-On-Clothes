@@ -1,14 +1,14 @@
 services:
   - type: web
-    name: ai-virtual-try-on-backend
+    name: uwear-virtual-try-on
     env: python
-    pythonVersion: "3.11.9"
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      cd ../frontend && npm ci && npm run build && cd ../backend
     startCommand: python main.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
-      - key: PYTHONPATH
-        value: .
-      - key: PORT
-        value: 8000
+      - key: NODE_VERSION
+        value: 18.0.0
+    healthCheckPath: /health
+    autoDeploy: true

@@ -1,112 +1,242 @@
-# Gen-AI Virtual Try-On Clothes 👗✨
+# Uwear AI Virtual Try-On Clothes
 
-![Virtual Try-On](https://img.shields.io/badge/Download%20Latest%20Release-Get%20It%20Here-brightgreen)  
-[![GitHub Releases](https://img.shields.io/github/release/Ownned3389/Gen-AI-Virtual-Try-On-Clothes.svg)](https://github.com/Ownned3389/Gen-AI-Virtual-Try-On-Clothes/releases)
+An AI-powered virtual try-on application that allows users to see how clothes look on them while preserving their original background and lighting.
 
-Welcome to the **Gen-AI Virtual Try-On Clothes** repository! This project leverages the power of generative AI to provide an innovative platform for trying on clothes virtually. Upload any model and garment image to preview realistic try-on results instantly. Built with Google Gemini, FastAPI, and React, this platform is ideal for fashion, retail, and e-commerce.
+## Features
 
-## Table of Contents
+- **AI-Powered Virtual Try-On**: Upload your photo and garment to see how it looks on you
+- **Background Preservation**: Your original background and lighting are preserved
+- **Advanced Texture Preservation**: Clothing textures, patterns, and design details are maintained
+- **Multiple Garment Types**: Support for shirts, pants, jackets, dresses, and t-shirts
+- **Style Customization**: Choose from various styles and model types
+- **Real-time Processing**: Fast AI processing with progress indicators
+- **History Tracking**: View and manage your previous try-on results
+- **Dark/Light Mode**: Toggle between dark and light themes
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
 
-1. [Features](#features)
-2. [Technologies Used](#technologies-used)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Contributing](#contributing)
-6. [License](#license)
-7. [Contact](#contact)
+## Unified Architecture
 
-## Features 🌟
+This application is now set up as a unified frontend and backend system where:
+- The backend serves both API endpoints and the frontend static files
+- Single deployment handles both frontend and backend
+- No need for separate hosting of frontend and backend
 
-- **Realistic Try-On**: Use advanced AI to visualize how clothes fit on different body types.
-- **Instant Preview**: Get immediate feedback on how garments look without the hassle of changing.
-- **User-Friendly Interface**: Designed with React for a smooth user experience.
-- **Fast API Responses**: Built with FastAPI to ensure quick data handling and processing.
-- **Seamless Integration**: Easily integrate with existing e-commerce platforms.
+## Quick Start
 
-## Technologies Used 🛠️
+### Prerequisites
 
-- **Google Gemini**: For generative AI capabilities.
-- **FastAPI**: To build the backend API efficiently.
-- **React**: For creating an interactive frontend.
-- **Python**: The core programming language for backend development.
-- **Docker**: For containerization and easy deployment.
+- Python 3.11.9 or higher
+- Node.js 18.0.0 or higher
+- npm 8.0.0 or higher
 
-## Installation ⚙️
+### Development Setup
 
-To get started with the Gen-AI Virtual Try-On Clothes platform, follow these steps:
-
-1. **Clone the Repository**:
+1. **Clone the repository**
    ```bash
-   git clone https://github.com/Ownned3389/Gen-AI-Virtual-Try-On-Clothes.git
+   git clone <repository-url>
    cd Gen-AI-Virtual-Try-On-Clothes
    ```
 
-2. **Set Up the Backend**:
-   - Navigate to the backend directory.
-   - Install the required packages:
-     ```bash
-     pip install -r requirements.txt
-     ```
-   - Run the FastAPI server:
-     ```bash
-     uvicorn main:app --reload
-     ```
-
-3. **Set Up the Frontend**:
-   - Navigate to the frontend directory.
-   - Install the required packages:
-     ```bash
-     npm install
-     ```
-   - Start the React app:
-     ```bash
-     npm start
-     ```
-
-4. **Access the Application**:
-   Open your web browser and go to `http://localhost:3000` to view the application.
-
-## Usage 🖼️
-
-1. **Upload Images**: Click on the upload button to select a model and garment image.
-2. **Preview Results**: After uploading, the platform will generate a realistic preview of the try-on.
-3. **Save or Share**: You can save the results or share them on social media.
-
-For the latest release, please visit [here](https://github.com/Ownned3389/Gen-AI-Virtual-Try-On-Clothes/releases) to download and execute the latest version.
-
-## Contributing 🤝
-
-We welcome contributions! If you want to improve this project, please follow these steps:
-
-1. Fork the repository.
-2. Create a new branch:
+2. **Install dependencies**
    ```bash
-   git checkout -b feature/YourFeatureName
+   # Install root dependencies
+   npm install
+   
+   # Or install separately
+   npm run install:frontend
+   npm run install:backend
    ```
-3. Make your changes and commit them:
+
+3. **Build the frontend**
    ```bash
-   git commit -m "Add your message here"
+   npm run build:frontend
    ```
-4. Push to the branch:
+
+4. **Start the development server**
    ```bash
-   git push origin feature/YourFeatureName
+   # Start both frontend and backend in development mode
+   npm run dev
+   
+   # Or start separately
+   npm run dev:backend  # Backend on http://localhost:8000
+   npm run dev:frontend # Frontend on http://localhost:5173
    ```
-5. Open a pull request.
 
-## License 📄
+### Production Deployment
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+1. **Build the application**
+   ```bash
+   npm run build
+   ```
 
-## Contact 📬
+2. **Start the production server**
+   ```bash
+   npm start
+   ```
 
-For questions or feedback, please reach out:
+The application will be available at `http://localhost:8000`
 
-- **Author**: Your Name
-- **Email**: your.email@example.com
-- **GitHub**: [Your GitHub Profile](https://github.com/YourProfile)
+### Alternative Build Methods
 
-For more information, check the [Releases](https://github.com/Ownned3389/Gen-AI-Virtual-Try-On-Clothes/releases) section.
+#### Using Build Scripts
 
----
+**Linux/Mac:**
+```bash
+cd backend
+chmod +x build.sh
+./build.sh
+python main.py
+```
 
-Feel free to explore the code and contribute to this exciting project! Your feedback and suggestions are always welcome. Happy coding!
+**Windows:**
+```bash
+cd backend
+build.bat
+python main.py
+```
+
+#### Manual Build
+
+```bash
+# Build frontend
+cd frontend
+npm install
+npm run build
+
+# Copy to backend
+cd ../backend
+mkdir -p frontend
+cp -r ../frontend/dist/* frontend/
+
+# Start backend
+python main.py
+```
+
+## Render.com Deployment
+
+This application is optimized for deployment on Render.com. Follow these steps:
+
+### 1. Connect Your Repository
+
+1. Go to [Render.com](https://render.com) and create an account
+2. Click "New +" and select "Web Service"
+3. Connect your GitHub repository
+4. Select the repository containing this project
+
+### 2. Configure the Service
+
+**Basic Settings:**
+- **Name**: `uwear-virtual-try-on` (or your preferred name)
+- **Environment**: `Python 3`
+- **Region**: Choose closest to your users
+- **Branch**: `main` (or your default branch)
+
+**Build & Deploy Settings:**
+- **Build Command**: `cd ../frontend && npm ci && npm run build && cd ../backend`
+- **Start Command**: `python main.py`
+- **Health Check Path**: `/health`
+
+**Environment Variables:**
+- `PYTHON_VERSION`: `3.11.9`
+- `NODE_VERSION`: `18.0.0`
+
+### 3. Deploy
+
+1. Click "Create Web Service"
+2. Render will automatically:
+   - Install Node.js and Python
+   - Build the frontend
+   - Install Python dependencies
+   - Start the application
+
+### 4. Verify Deployment
+
+Once deployed, you can:
+- Visit your app at the provided URL
+- Check the health endpoint: `https://your-app.onrender.com/health`
+- Test the API: `https://your-app.onrender.com/api/try-on`
+
+### Troubleshooting Render Deployment
+
+**If the build fails:**
+1. Check the build logs in Render dashboard
+2. Ensure all files are committed to your repository
+3. Verify the build command is correct
+
+**If the app doesn't start:**
+1. Check the start logs in Render dashboard
+2. Verify the start command: `python main.py`
+3. Check if all dependencies are installed
+
+**If frontend is not loading:**
+1. Check if the frontend build completed successfully
+2. Verify the `/health` endpoint shows `frontend_built: true`
+3. Check the build logs for any frontend build errors
+
+## API Endpoints
+
+- `GET /` - Serves the frontend application
+- `GET /health` - Health check endpoint
+- `GET /test` - Test endpoint
+- `POST /api/try-on` - Virtual try-on endpoint
+
+## Project Structure
+
+```
+Gen-AI-Virtual-Try-On-Clothes/
+├── frontend/                 # React frontend application
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── vite.config.js
+├── backend/                  # FastAPI backend application
+│   ├── main.py              # Main application entry point
+│   ├── routers/             # API route handlers
+│   ├── utils/               # Utility functions
+│   ├── frontend/            # Built frontend files (generated)
+│   ├── requirements.txt
+│   ├── build.sh             # Linux/Mac build script
+│   ├── build.bat            # Windows build script
+│   ├── Procfile             # Render deployment configuration
+│   └── render.yaml          # Render service configuration
+├── package.json             # Root package.json for unified management
+└── README.md
+```
+
+## Environment Variables
+
+The application automatically detects the environment:
+- **Development**: Uses `http://localhost:8000` for API calls
+- **Production**: Uses relative URLs when served from the same domain
+
+## Development
+
+### Frontend Development
+
+- Built with React 18 and Vite
+- Uses Tailwind CSS for styling
+- Includes Radix UI components
+- Supports hot reloading in development
+
+### Backend Development
+
+- Built with FastAPI
+- Uses MediaPipe for AI processing
+- Includes CORS middleware for development
+- Supports both API and static file serving
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Support
+
+For support and questions, please open an issue in the repository.
