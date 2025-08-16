@@ -41,20 +41,19 @@ function App() {
     }
   }, [isDarkMode]);
 
-  // Check backend health on component mount
+  // Check backend connectivity on component mount
   useEffect(() => {
-    const checkBackendHealth = async () => {
-      console.log("Checking backend health at:", API_ENDPOINTS.health);
+    const checkBackendConnectivity = async () => {
+      console.log("Checking backend connectivity at:", API_BASE_URL);
       try {
-        const response = await axios.get(API_ENDPOINTS.health);
-        console.log("Backend health check:", response.data);
+        const response = await axios.get(API_BASE_URL);
+        console.log("Backend is running:", response.data);
       } catch (error) {
-        console.warn("Backend health check failed:", error.message);
-        console.warn("Error details:", error);
+        console.warn("Backend connectivity check failed:", error.message);
       }
     };
     
-    checkBackendHealth();
+    checkBackendConnectivity();
   }, []);
 
   useEffect(() => {
