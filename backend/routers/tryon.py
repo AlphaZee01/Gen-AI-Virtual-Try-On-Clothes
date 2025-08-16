@@ -13,6 +13,11 @@ except Exception as e:
 
 router = APIRouter()
 
+@router.get("/try-on")
+async def try_on_test():
+    """Test endpoint to verify router is working"""
+    return {"message": "Try-on router is working", "status": "ready"}
+
 # Initialize the enhanced virtual try-on processor
 try_on_processor = None
 

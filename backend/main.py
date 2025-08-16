@@ -158,6 +158,12 @@ app.add_middleware(
 # Import and include router immediately
 try:
     print("🔄 Attempting to import tryon router...")
+    # Add current directory to Python path
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    if current_dir not in sys.path:
+        sys.path.insert(0, current_dir)
+    print(f"📁 Added to Python path: {current_dir}")
+    
     from routers import tryon
     print("✅ Tryon router imported successfully")
     app.include_router(tryon.router, prefix="/api")
