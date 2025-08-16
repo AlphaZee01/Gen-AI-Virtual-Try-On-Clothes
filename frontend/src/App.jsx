@@ -44,11 +44,13 @@ function App() {
   // Check backend health on component mount
   useEffect(() => {
     const checkBackendHealth = async () => {
+      console.log("Checking backend health at:", API_ENDPOINTS.health);
       try {
         const response = await axios.get(API_ENDPOINTS.health);
         console.log("Backend health check:", response.data);
       } catch (error) {
         console.warn("Backend health check failed:", error.message);
+        console.warn("Error details:", error);
       }
     };
     
@@ -81,6 +83,7 @@ function App() {
     formData.append("style", style || "");
 
     try {
+      console.log("Submitting to:", API_ENDPOINTS.tryOn);
       const response = await axios.post(API_ENDPOINTS.tryOn, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });

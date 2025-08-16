@@ -10,14 +10,24 @@ const API_CONFIG = {
   }
 };
 
-// Get current environment
-const environment = import.meta.env.MODE || 'development';
+// Get current environment - force production for now
+const environment = 'production'; // import.meta.env.MODE || 'development';
+
+// Debug logging
+console.log('Environment:', environment);
+console.log('Import meta env:', import.meta.env);
 
 // Export the appropriate configuration
 export const API_BASE_URL = API_CONFIG[environment]?.baseURL || API_CONFIG.production.baseURL;
+
+// Debug logging
+console.log('API Base URL:', API_BASE_URL);
 
 // API endpoints
 export const API_ENDPOINTS = {
   tryOn: `${API_BASE_URL}/api/try-on`,
   health: `${API_BASE_URL}/health`,
 };
+
+// Debug logging
+console.log('API Endpoints:', API_ENDPOINTS);
