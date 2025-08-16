@@ -65,6 +65,11 @@ def root():
         }
     }
 
+@app.get("/startup")
+def startup_check():
+    """Simple startup check for Render port detection"""
+    return {"status": "starting", "message": "Application is starting up"}
+
 @app.get("/health")
 def health_check():
     return {
@@ -139,8 +144,19 @@ if __name__ == "__main__":
     else:
         print("⚠️  Frontend not built - API only mode")
     
+    print(f"🌐 Binding to port {port}...")
+    print(f"🔗 Application will be available at: http://0.0.0.0:{port}")
+    
     try:
-        uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
+        # Start server with immediate binding
+        uvicorn.run(
+            app, 
+            host="0.0.0.0", 
+            port=port, 
+            log_level="info",
+            access_log=True,
+            server_header=False
+        )
     except Exception as e:
         print(f"❌ Error starting server: {e}")
         sys.exit(1)
