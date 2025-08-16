@@ -13,12 +13,22 @@ def root():
 def health_check():
     return {"status": "healthy", "mediapipe": "available"}
 
+@app.get("/test")
+def test_endpoint():
+    return {"message": "Test endpoint working", "timestamp": "2024-01-16"}
+
 # Allow frontend to connect
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # or ["http://localhost:3000"] for React
+    allow_origins=[
+        "http://localhost:5173",  # Vite dev server
+        "http://localhost:3000",  # React dev server
+        "http://localhost:8000",  # Local backend
+        "https://uwear-ai-virtual-try-on-clothes.onrender.com",  # Deployed backend
+        "*"  # Allow all origins for now
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 

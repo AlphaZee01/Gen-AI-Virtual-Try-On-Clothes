@@ -26,6 +26,9 @@ async def try_on(
     garment_type: str = Form(""),
     style: str = Form(""),
 ):
+    print(f"Received try-on request with garment_type: {garment_type}, instructions: {instructions}")
+    print(f"Person image: {person_image.filename}, size: {person_image.size if hasattr(person_image, 'size') else 'unknown'}")
+    print(f"Cloth image: {cloth_image.filename}, size: {cloth_image.size if hasattr(cloth_image, 'size') else 'unknown'}")
     try:
         # Validate file types and sizes
         MAX_IMAGE_SIZE_MB = 10
