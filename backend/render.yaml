@@ -3,7 +3,7 @@ services:
     name: uwear-virtual-try-on
     env: python
     buildCommand: cd ../frontend && npm ci && npm run build && cd ../backend && pip install -r requirements.txt
-    startCommand: python start_server.py
+    startCommand: python simple_server.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
