@@ -157,11 +157,19 @@ app.add_middleware(
 
 # Import and include router immediately
 try:
+    print("🔄 Attempting to import tryon router...")
     from routers import tryon
+    print("✅ Tryon router imported successfully")
     app.include_router(tryon.router, prefix="/api")
     print("✅ Try-on router included successfully")
+except ImportError as e:
+    print(f"❌ Import error for tryon router: {e}")
+    print(f"📁 Current directory: {os.getcwd()}")
+    print(f"📁 Python path: {sys.path}")
 except Exception as e:
     print(f"❌ Failed to include try-on router: {e}")
+    import traceback
+    traceback.print_exc()
 
 # Server configuration for deployment
 if __name__ == "__main__":
