@@ -2,34 +2,37 @@
 
 ## Python Version Compatibility
 
-### Option 1: Python 3.13+ (Recommended for Render.com)
+### ✅ Recommended: Python 3.11.9 (Enhanced Features with MediaPipe)
+- **Use:** `requirements.txt` (MediaPipe included)
+- **Features:** Full virtual try-on with MediaPipe pose detection
+- **Deployment:** Works on Render.com with enhanced accuracy
+- **Installation:** `pip install -r requirements.txt`
+
+### Fallback: Python 3.13+ (Basic Features)
 - **Use:** `requirements.txt` (MediaPipe excluded)
 - **Features:** Full virtual try-on with fallback pose detection
-- **Deployment:** Works on all platforms including Render.com
-
-### Option 2: Python 3.8-3.12 (Enhanced Features)
-- **Use:** `requirements.txt` + `requirements-mediapipe.txt`
-- **Features:** Full virtual try-on with MediaPipe pose detection
-- **Installation:** `pip install -r requirements.txt -r requirements-mediapipe.txt`
+- **Deployment:** Works on all platforms with basic functionality
 
 ## Render.com Configuration
 
-### Automatic Deployment
-The system will automatically use fallback methods when MediaPipe is not available.
+### ✅ Automatic Deployment with MediaPipe
+The system is configured to use Python 3.11.9 with MediaPipe for enhanced features.
 
-### Manual Configuration (if needed)
-1. Set Python version to 3.11.9 in Render.com dashboard
-2. Or use the `render.yaml` configuration file
+### Configuration Files
+- `render.yaml` - Specifies Python 3.11.9 and MediaPipe installation
+- `.python-version` - Ensures correct Python version
+- `requirements.txt` - Includes MediaPipe for enhanced pose detection
 
 ## Local Development
 
-### With MediaPipe (Python 3.8-3.12)
+### ✅ Recommended: With MediaPipe (Python 3.11.9)
 ```bash
-pip install -r requirements.txt -r requirements-mediapipe.txt
+pip install -r requirements.txt
 ```
 
-### Without MediaPipe (Python 3.13+)
+### Fallback: Without MediaPipe (Python 3.13+)
 ```bash
+# Remove mediapipe line from requirements.txt first
 pip install -r requirements.txt
 ```
 

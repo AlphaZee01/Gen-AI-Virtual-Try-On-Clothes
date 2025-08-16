@@ -20,6 +20,8 @@ All notable changes to this project will be documented in this file.
 - **Added render.yaml configuration for Render.com deployment**
 - **Created separate requirements-mediapipe.txt for enhanced features**
 - **Added comprehensive deployment guide with troubleshooting**
+- **✅ Configured for Python 3.11.9 with MediaPipe for enhanced features**
+- **✅ Updated requirements.txt to include MediaPipe by default**
 
 ### Added
 - Enhanced virtual try-on system with advanced texture preservation
