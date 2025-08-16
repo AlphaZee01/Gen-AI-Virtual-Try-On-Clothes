@@ -1,1 +1,1 @@
-web: cd ../frontend && npm install && npm run build && cd ../backend && pip install -e . && python main.py
+web: python main.py
