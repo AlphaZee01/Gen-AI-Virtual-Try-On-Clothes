@@ -4,9 +4,9 @@ const API_CONFIG = {
   development: {
     baseURL: 'http://localhost:8000',
   },
-  // Production environment - use relative URLs when served from same domain
+  // Production environment - use deployed backend URL
   production: {
-    baseURL: '', // Empty string for relative URLs when served from same domain
+    baseURL: 'https://uwear-ai-virtual-try-on-clothes.onrender.com',
   }
 };
 
