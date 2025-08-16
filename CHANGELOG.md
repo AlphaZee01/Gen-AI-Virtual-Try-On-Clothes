@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- Resolved import error for cv2 (OpenCV) in enhanced_tryon.py
+- Fixed missing dependencies in pyproject.toml file
+- Added onnxruntime dependency for rembg background removal
+- Implemented fallback background removal method when rembg is unavailable
+- Updated requirements.txt with all necessary computer vision dependencies
+
 ### Added
 - Enhanced virtual try-on system with advanced texture preservation
 - MediaPipe integration for precise body detection and segmentation

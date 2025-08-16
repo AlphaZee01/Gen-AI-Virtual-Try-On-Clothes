@@ -4,11 +4,18 @@ from PIL import Image, ImageEnhance
 import io
 import base64
 import mediapipe as mp
-from rembg import remove
 import os
 from typing import Tuple, Optional, List
 from scipy import ndimage
 from skimage import filters, feature
+
+# Try to import rembg, but provide fallback if not available
+try:
+    from rembg import remove
+    REMBG_AVAILABLE = True
+except ImportError:
+    REMBG_AVAILABLE = False
+    print("Warning: rembg not available. Using fallback background removal method.")
 
 class EnhancedVirtualTryOnProcessor:
     def __init__(self):
@@ -153,14 +160,46 @@ class EnhancedVirtualTryOnProcessor:
     
     def remove_background(self, image: np.ndarray) -> np.ndarray:
         """Remove background from image using rembg with texture preservation"""
-        # Convert numpy array to PIL Image
-        pil_image = Image.fromarray(image)
+        if REMBG_AVAILABLE:
+            # Use rembg for background removal
+            pil_image = Image.fromarray(image)
+            result = remove(pil_image)
+            return np.array(result)
+        else:
+            # Fallback: Use simple color-based background removal
+            return self._fallback_background_removal(image)
+    
+    def _fallback_background_removal(self, image: np.ndarray) -> np.ndarray:
+        """Fallback background removal using color-based segmentation"""
+        # Convert to HSV for better color segmentation
+        hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
         
-        # Remove background
-        result = remove(pil_image)
+        # Create a mask for white/light backgrounds
+        lower_white = np.array([0, 0, 200])
+        upper_white = np.array([180, 30, 255])
+        white_mask = cv2.inRange(hsv, lower_white, upper_white)
         
-        # Convert back to numpy array
-        return np.array(result)
+        # Create a mask for black/dark backgrounds
+        lower_black = np.array([0, 0, 0])
+        upper_black = np.array([180, 255, 50])
+        black_mask = cv2.inRange(hsv, lower_black, upper_black)
+        
+        # Combine masks
+        background_mask = cv2.bitwise_or(white_mask, black_mask)
+        
+        # Invert to get foreground mask
+        foreground_mask = cv2.bitwise_not(background_mask)
+        
+        # Apply morphological operations to clean up the mask
+        kernel = np.ones((5, 5), np.uint8)
+        foreground_mask = cv2.morphologyEx(foreground_mask, cv2.MORPH_CLOSE, kernel)
+        foreground_mask = cv2.morphologyEx(foreground_mask, cv2.MORPH_OPEN, kernel)
+        
+        # Create RGBA image with alpha channel
+        rgba = cv2.cvtColor(image, cv2.COLOR_RGB2RGBA)
+        rgba[:, :, 3] = foreground_mask
+        
+        return rgba
     
     def calculate_clothing_region(self, body_points: dict, garment_type: str) -> Tuple[int, int, int, int]:
         """Calculate the region where clothing should be placed based on body landmarks"""
