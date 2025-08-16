@@ -130,8 +130,16 @@ function App() {
               Try-On Clothes in Seconds
             </h1>
             <p className="text-muted-foreground text-lg">
-              Upload your photo and garment to see how it looks on you
+              Upload your photo and garment to see how it looks on you with your original background preserved
             </p>
+            <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+              <p className="text-sm text-green-700 dark:text-green-300">
+                ✨ Enhanced Experience: Your original background and lighting are preserved. Only the clothing is applied to your image for the most realistic try-on experience.
+              </p>
+              <p className="text-sm text-green-700 dark:text-green-300 mt-2">
+                🎨 Advanced Texture Preservation: Clothing textures, patterns, and design details are maintained with high fidelity for authentic results.
+              </p>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
