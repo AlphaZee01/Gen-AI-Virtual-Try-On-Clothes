@@ -27,7 +27,7 @@ echo "🐍 Installing Python dependencies..."
 cd backend
 pip install poetry
 poetry config virtualenvs.create false
-poetry install --no-dev
+poetry install --only=main
 echo "✅ Python dependencies installed"
 cd ..
 

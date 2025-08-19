@@ -25,6 +25,7 @@ WORKDIR /app/backend
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy backend dependencies
@@ -33,7 +34,7 @@ COPY backend/pyproject.toml backend/poetry.lock ./
 # Install poetry and dependencies
 RUN pip install poetry && \
     poetry config virtualenvs.create false && \
-    poetry install --no-dev
+    poetry install --only=main
 
 # Copy backend source code
 COPY backend/ .
