@@ -8,7 +8,7 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 
 # Install frontend dependencies
-RUN npm ci --only=production
+RUN npm install
 
 # Copy frontend source code
 COPY frontend/ .
@@ -46,6 +46,7 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy backend from builder
