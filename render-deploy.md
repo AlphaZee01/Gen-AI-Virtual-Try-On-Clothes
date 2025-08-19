@@ -21,7 +21,7 @@ This guide provides step-by-step instructions for deploying the Gen-AI Virtual T
    - **Start Command**: Leave empty (uses `render.yaml`)
 
 4. **Set Environment Variables**:
-   - `GOOGLE_API_KEY`: Your Google Gemini API key
+   - `GEMINI_API_KEY`: Your Google Gemini API key
    - `ENVIRONMENT`: `production`
    - `DEBUG`: `false`
 
@@ -84,7 +84,7 @@ Set these in your Render dashboard:
 
 | Variable | Value | Description |
 |----------|-------|-------------|
-| `GOOGLE_API_KEY` | `your_api_key_here` | Google Gemini API key |
+| `GEMINI_API_KEY` | `your_api_key_here` | Google Gemini API key |
 | `ENVIRONMENT` | `production` | Application environment |
 | `DEBUG` | `false` | Debug mode |
 | `CORS_ORIGINS` | `https://your-app.onrender.com` | Allowed CORS origins |

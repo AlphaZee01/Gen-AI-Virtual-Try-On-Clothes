@@ -20,11 +20,11 @@ spec:
         ports:
         - containerPort: 8000
         env:
-        - name: GOOGLE_API_KEY
+        - name: GEMINI_API_KEY
           valueFrom:
             secretKeyRef:
               name: app-secrets
-              key: google-api-key
+              key: gemini-api-key
         - name: ENVIRONMENT
           value: "production"
         - name: PORT
@@ -86,7 +86,7 @@ metadata:
   name: app-secrets
 type: Opaque
 data:
-  google-api-key: <base64-encoded-api-key>
+  gemini-api-key: <base64-encoded-api-key>
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

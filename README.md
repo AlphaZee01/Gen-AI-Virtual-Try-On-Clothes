@@ -17,7 +17,7 @@ Welcome to the **Gen-AI Virtual Try-On Clothes** repository! This project levera
 1. **Click the Deploy Button above**
 2. **Connect your GitHub repository**
 3. **Set Environment Variables**:
-   - `GOOGLE_API_KEY`: Your Google Gemini API key
+   - `GEMINI_API_KEY`: Your Google Gemini API key
 4. **Deploy**: Click "Create Web Service"
 
 Your app will be live at `https://your-app-name.onrender.com`!
@@ -134,7 +134,7 @@ The easiest way to deploy is using Render:
 
 1. **One-Click Deploy**: Click the [Deploy to Render](https://render.com/deploy) button
 2. **Manual Setup**: Follow the [Render Deployment Guide](render-deploy.md)
-3. **Environment Variables**: Set your `GOOGLE_API_KEY` in Render dashboard
+3. **Environment Variables**: Set your `GEMINI_API_KEY` in Render dashboard
 
 ### Docker Deployment
 
@@ -172,7 +172,7 @@ kubectl get pods,services,ingress
 ```bash
 # Deploy to Heroku
 heroku create your-app-name
-heroku config:set GOOGLE_API_KEY=your_api_key
+heroku config:set GEMINI_API_KEY=your_api_key
 git push heroku main
 ```
 
@@ -226,7 +226,7 @@ DEBUG=false
 PORT=8000
 
 # Google Gemini API Configuration
-GOOGLE_API_KEY=your_google_gemini_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 
 # Security
 SECRET_KEY=your_secret_key_here
@@ -293,7 +293,7 @@ We welcome contributions! If you want to improve this project, please follow the
    ```
 
 2. **API Key Issues**:
-   - Ensure `GOOGLE_API_KEY` is set in `.env`
+   - Ensure `GEMINI_API_KEY` is set in `.env`
    - Verify the API key has proper permissions
 
 3. **Port Conflicts**:

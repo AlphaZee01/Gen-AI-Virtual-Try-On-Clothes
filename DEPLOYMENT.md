@@ -76,7 +76,7 @@ npm run dev
 ```bash
 # Build and run
 docker build -t gen-ai-virtual-tryon .
-docker run -p 8000:8000 -e GOOGLE_API_KEY=your_key gen-ai-virtual-tryon
+docker run -p 8000:8000 -e GEMINI_API_KEY=your_key gen-ai-virtual-tryon
 ```
 
 #### Docker Compose
@@ -96,7 +96,7 @@ docker-compose --profile production up --build -d
 heroku create your-app-name
 
 # Set environment variables
-heroku config:set GOOGLE_API_KEY=your_api_key
+heroku config:set GEMINI_API_KEY=your_api_key
 heroku config:set ENVIRONMENT=production
 
 # Deploy
@@ -126,7 +126,7 @@ gcloud run deploy gen-ai-virtual-tryon \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated \
-  --set-env-vars GOOGLE_API_KEY=your_api_key,ENVIRONMENT=production
+  --set-env-vars GEMINI_API_KEY=your_api_key,ENVIRONMENT=production
 ```
 
 #### DigitalOcean App Platform
@@ -156,7 +156,7 @@ DEBUG=false
 PORT=8000
 
 # Google Gemini API Configuration
-GOOGLE_API_KEY=your_google_gemini_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 
 # Security
 SECRET_KEY=your_secret_key_here

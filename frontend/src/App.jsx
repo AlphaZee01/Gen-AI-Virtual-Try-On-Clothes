@@ -63,7 +63,7 @@ function App() {
     formData.append("style", style || "");
 
     try {
-      const response = await axios.post("http://localhost:8000/api/try-on", formData, {
+      const response = await axios.post("/api/try-on", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
