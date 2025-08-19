@@ -86,7 +86,7 @@ deploy_dev() {
     # Backend setup
     cd backend
     if command -v poetry &> /dev/null; then
-        poetry install
+        poetry install --no-root
     else
         pip install -r requirements.txt 2>/dev/null || pip install -e .
     fi

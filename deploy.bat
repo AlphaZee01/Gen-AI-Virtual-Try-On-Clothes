@@ -86,7 +86,7 @@ call :print_status "Setting up development environment..."
 REM Backend setup
 cd backend
 if exist pyproject.toml (
-    poetry install
+    poetry install --no-root
 ) else (
     pip install -r requirements.txt 2>nul || pip install -e .
 )

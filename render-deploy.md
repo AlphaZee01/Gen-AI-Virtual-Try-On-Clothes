@@ -72,7 +72,7 @@ services:
       cd backend
       pip install poetry
       poetry config virtualenvs.create false
-      poetry install --only=main
+      poetry install --only=main --no-root
       cd ..
     startCommand: |
       cd backend

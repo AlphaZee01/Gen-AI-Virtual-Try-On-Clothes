@@ -66,102 +66,67 @@ async def try_on(
         cloth_b64 = array_buffer_to_base64(cloth_bytes)
 
         prompt = f"""
-            {{
-            "objective": "Generate a photorealistic virtual try-on image, seamlessly integrating a specified clothing item onto a person while rigidly preserving their facial identity, the clothing's exact appearance, and placing them in a completely new, distinct background.",
-            "task": "High-Fidelity Virtual Try-On with Identity/Garment Preservation and Background Replacement", 
+        You are a virtual fashion stylist. Your task is to modify the MAIN IMAGE (person) by ONLY changing their clothing to match the REFERENCE IMAGE (garment), while keeping everything else exactly the same.
 
-            "inputs": {{
-            "person_image": {{
-                "description": "Source image containing the target person. Used *primarily* for identity (face, skin tone), pose, body shape, hair, and accessories. The original background will be DISCARDED.",
-                "id": "input_1"
-            }},
-            "garment_image": {{
-                "description": "Source image containing the target clothing item. May include a model, mannequin, or be flat-lay. Used *strictly* for the clothing's visual properties (color, style, texture, pattern).",
-                "id": "input_2"
-            }}
-            }},
+        IMAGE STRUCTURE:
+        - MAIN IMAGE (PERSON): This is the base image to modify - keep everything except clothing
+        - REFERENCE IMAGE (GARMENT): This is the clothing reference - extract ONLY the garment
 
-            "processing_steps": [
-            "Isolate the clothing item from 'garment_image' (input_2), discarding any original model, mannequin, or background. Extract exact color, pattern, texture, and style information.",
-            "Identify the person (face, body shape, skin tone), pose, hair, and accessories from 'person_image' (input_1).",
-            "Segment the person from the original background in 'person_image'.",
-            "Determine the desired new background based on 'background_preference' or generate a suitable default.",
-            "Analyze lighting cues from 'person_image' to inform initial lighting on the subject, but adapt lighting for consistency with the *new* background."
-            ],
+        CRITICAL INSTRUCTIONS:
+        1. START with the MAIN IMAGE (person) as your base - this is the image to modify
+        2. KEEP the person's face, hair, skin tone, and pose EXACTLY as they are in the MAIN IMAGE
+        3. KEEP the original background EXACTLY as it is in the MAIN IMAGE
+        4. KEEP the lighting, shadows, and environment EXACTLY as they are in the MAIN IMAGE
+        5. ONLY change the clothing/garment to match the REFERENCE IMAGE (garment)
+        6. Make the garment from the REFERENCE IMAGE fit naturally on the person's body shape and pose
+        7. Preserve the exact color, pattern, and texture of the garment from the REFERENCE IMAGE
 
-            "output_requirements": {{
-            "description": "Generate a single, high-resolution image where the person from 'person_image' appears to be naturally and realistically wearing the clothing item from 'garment_image', situated within a **completely new and different background**.",
-            "format": "Image (e.g., PNG, JPG)",
-            "quality": "Photorealistic, free of obvious artifacts, blending issues, or inconsistencies between subject, garment, and the new background."
-            }},
+        GARMENT TRANSFER SPECIFICATIONS:
+        - Extract ONLY the clothing item from the REFERENCE IMAGE
+        - Ignore any person, model, mannequin, or background in the REFERENCE IMAGE
+        - Transfer ONLY the fabric, color, pattern, and design of the garment
+        - Scale the garment to fit the person's body proportions in the MAIN IMAGE
+        - Maintain the garment's original appearance but adapt it to the person's pose
+        - Keep the garment's texture, material properties, and visual details intact
 
-            "core_constraints": {{
-            "identity_lock": {{
-                "priority": "ABSOLUTE CRITICAL",
-                "instruction": "Maintain the **PERFECT** facial identity, features, skin tone, and expression of the person from 'person_image'. **ZERO alterations** to the face are permitted. Treat the head region (including hair) as immutable unless directly and logically occluded by the garment. DO NOT GUESS OR HALLUCINATE FACIAL FEATURES."
-            }},
-            "garment_fidelity": {{
-                "priority": "ABSOLUTE CRITICAL",
-                "instruction": "Preserve the **EXACT** color (hue, saturation, brightness), pattern, texture, material properties, and design details of the clothing item from 'garment_image'. **ZERO deviations** in style, color, or visual appearance are allowed. Render the garment precisely as depicted in input_2."
-            }},
-            "background_replacement": {{
-                "priority": "CRITICAL",
-                "instruction": "Generate a **COMPLETELY NEW and DIFFERENT** background that is distinct from the original background in 'person_image'. The new background should be photorealistic and contextually plausible for a person/fashion image unless otherwise specified by 'background_preference'. Ensure the person is seamlessly integrated into this new environment. **NO elements** from the original background should remain visible."
-            }},
-            "pose_preservation": {{
-                "priority": "HIGH",
-                "instruction": "Retain the **exact** body pose and positioning of the person from 'person_image'."
-            }},
-            "realistic_integration": {{
-                "priority": "HIGH",
-                "instruction": "Simulate physically plausible draping, folding, and fit of the garment onto the person's body according to their shape and pose. Ensure natural interaction with the body within the context of the *new* background."
-            }},
-            "lighting_consistency": {{
-                "priority": "HIGH",
-                "instruction": "Apply lighting, shadows, and highlights to the rendered garment AND the person that are **perfectly consistent** with the direction, intensity, and color temperature implied by the **NEW background**. Adjust subject lighting subtly if necessary to match the new scene, but prioritize maintaining a natural look consistent with the original subject's lighting where possible."
-            }}
-            }},
+        STRICT PRESERVATION RULES:
+        - Person's face: NO changes whatsoever
+        - Person's hair: NO changes whatsoever  
+        - Person's skin tone: NO changes whatsoever
+        - Person's pose: NO changes whatsoever
+        - Person's body shape: NO changes whatsoever
+        - Background: NO changes whatsoever
+        - Lighting: NO changes whatsoever
+        - Shadows: NO changes whatsoever
+        - Environment: NO changes whatsoever
+        - Accessories (glasses, jewelry, etc.): NO changes unless covered by new garment
+        - Image framing: NO changes whatsoever - keep exact same crop and composition
+        - Image zoom level: NO changes whatsoever - maintain exact same scale
+        - Image dimensions: NO changes whatsoever - output same size as input
 
-            "additional_constraints": {{
-            "body_proportion_accuracy": "Scale the garment accurately to match the person's body proportions.",
-            "occlusion_handling": "Render natural and correct occlusion where the garment covers parts of the body, hair, or existing accessories from 'person_image'. Preserve visible unique features (tattoos, scars) unless occluded.",
-            "hair_and_accessory_integrity": "Maintain hair and non-clothing accessories (glasses, jewelry, hats) from 'person_image' unless logically occluded by the new garment. Integrate them seamlessly with the person and the new background.",
-            "texture_and_detail_rendering": "Render fine details (e.g., embroidery, seams, buttons, lace, sheer fabric properties) from the garment with high fidelity.",
-            "scene_coherence": "Ensure the person logically fits within the generated background environment (e.g., appropriate scale, perspective, interaction with ground plane if applicable)."
-            }},
+        DO NOT:
+        - Change the person's face, hair, or skin tone from the MAIN IMAGE
+        - Change the background or environment from the MAIN IMAGE
+        - Change the lighting or shadows from the MAIN IMAGE
+        - Generate a new scene or setting
+        - Alter the person's pose or body shape from the MAIN IMAGE
+        - Use the REFERENCE IMAGE as the main person (it's just for the clothing reference)
+        - Copy any person, model, or mannequin from the REFERENCE IMAGE
+        - Transfer any background elements from the REFERENCE IMAGE
+        - Change the composition or framing of the MAIN IMAGE
+        - Zoom in or out on the image
+        - Crop or resize the image
+        - Change the image dimensions or aspect ratio
+        - Adjust the camera angle or perspective
 
-            "edge_case_handling": {{
-            "tight_fitting_clothing": "Accurately depict fabric stretch and conformity to body contours.",
-            "transparent_sheer_clothing": "Realistically render transparency, showing underlying skin tone or layers appropriately.",
-            "complex_garment_geometry": "Handle unusual shapes, layers, or asymmetrical designs with correct draping.",
-            "unusual_poses": "Ensure garment drape remains physically plausible even in non-standard or dynamic poses.",
-            "garment_partially_out_of_frame": "Render the visible parts of the garment correctly; do not hallucinate missing sections.",
-            "low_resolution_inputs": "Maximize detail preservation but prioritize realistic integration over inventing details not present in the inputs.",
-            "mismatched_lighting_inputs": "Prioritize generating a coherent lighting environment based on the **NEW background**, adapting the garment and slightly adjusting the person's apparent lighting for a unified final image. Avoid harsh lighting clashes."
-            }},
-
-            "prohibitions": [
-            "DO NOT alter the person's facial features, identity, expression, or skin tone.",
-            "DO NOT modify the intrinsic color, pattern, texture, or style of the clothing item.",
-            "DO NOT retain ANY part of the original background from 'person_image'.",
-            "DO NOT change the person's pose.",
-            "DO NOT introduce elements not present in the input images (person, garment) except for the generated background and necessary shadows/lighting adjustments for integration.",
-            "DO NOT hallucinate or guess facial details; if obscured, maintain the integrity of visible parts based on identity lock.",
-            "DO NOT generate a background that is stylistically jarring or contextually nonsensical without explicit instruction via 'background_preference'."
-            ]
-            }}
-
-            You are a virtual fashion stylist.
-            Create a realistic try-on visualization of the uploaded clothing onto the person image.
-            Match the following context:
+        Context:
             - Model Type: {model_type}
             - Gender: {gender}
             - Garment Type: {garment_type}
             - Style: {style}
             - Special Instructions: {instructions}
 
-           Return image of try on and a short caption or summary of how the outfit looks and fits. Also include suggestions for improvement.
-        
+        Return the MAIN IMAGE with ONLY the garment changed to match the REFERENCE IMAGE, keeping everything else identical to the original MAIN IMAGE.
         """
                
         print(model_type)
@@ -174,12 +139,14 @@ async def try_on(
 
         contents=[
             prompt,
+            types.Part(text="MAIN IMAGE (PERSON) - This is the base image to modify:"),
             types.Part.from_bytes(
-                data=user_b64,
+                data=user_bytes,
                 mime_type= person_image.content_type,
             ),
+            types.Part(text="REFERENCE IMAGE (GARMENT) - Extract ONLY the clothing from this image:"),
             types.Part.from_bytes(
-                data=cloth_b64,
+                data=cloth_bytes,
                 mime_type= cloth_image.content_type,
             ),
         ]        
