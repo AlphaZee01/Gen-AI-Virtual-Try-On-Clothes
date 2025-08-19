@@ -1,13 +1,27 @@
 import os
+import sys
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from routers import tryon
 from fastapi.middleware.cors import CORSMiddleware
+
+# Add error handling for router import
+try:
+    from routers import tryon
+    print("✅ Successfully imported tryon router")
+except Exception as e:
+    print(f"❌ Error importing tryon router: {e}")
+    sys.exit(1)
 
 # Environment configuration
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 DEBUG = os.getenv("DEBUG", "true").lower() == "true"
+
+print(f"🚀 Starting Gen-AI Virtual Try-On API")
+print(f"📊 Environment: {ENVIRONMENT}")
+print(f"🔧 Debug mode: {DEBUG}")
+print(f"📁 Working directory: {os.getcwd()}")
+print(f"📁 Frontend dist path: {os.path.abspath('./frontend/dist')}")
 
 app = FastAPI(
     title="Gen-AI Virtual Try-On API",
@@ -35,7 +49,11 @@ async def health_check():
 if ENVIRONMENT == "production":
     # Check if frontend build exists
     frontend_dist_path = "./frontend/dist"
+    print(f"🔍 Checking for frontend build at: {frontend_dist_path}")
+    print(f"📁 Frontend dist exists: {os.path.exists(frontend_dist_path)}")
+    
     if os.path.exists(frontend_dist_path):
+        print("✅ Frontend build found, mounting static files")
         app.mount("/static", StaticFiles(directory=frontend_dist_path), name="static")
         
         @app.get("/")
@@ -51,5 +69,7 @@ if ENVIRONMENT == "production":
             
             # If not found, serve index.html for SPA routing
             return FileResponse(f"{frontend_dist_path}/index.html")
+    else:
+        print("⚠️ Frontend build not found, static file serving disabled")
 
 app.include_router(tryon.router, prefix="/api")
