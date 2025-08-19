@@ -12,11 +12,8 @@ load_dotenv()
 
 router = APIRouter()
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise ValueError("Missing GEMINI_API_KEY in .env")
-
-client = genai.Client(api_key=GEMINI_API_KEY)
+# Initialize client as None, will be set when endpoint is called
+client = None
 
 @router.post("/try-on")
 async def try_on(
@@ -29,6 +26,13 @@ async def try_on(
     style: str = Form(""),
 ):
     try:
+        # Initialize Gemini client
+        global client
+        if client is None:
+            GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+            if not GEMINI_API_KEY:
+                raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured")
+            client = genai.Client(api_key=GEMINI_API_KEY)
         
         MAX_IMAGE_SIZE_MB = 10
         ALLOWED_MIME_TYPES = {
