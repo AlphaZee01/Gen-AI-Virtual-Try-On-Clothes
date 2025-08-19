@@ -7,6 +7,11 @@ from google import genai
 from google.genai import types
 import traceback
 import base64
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -26,12 +31,17 @@ async def try_on(
     style: str = Form(""),
 ):
     try:
+        logger.info("Starting try-on request")
+        
         # Initialize Gemini client
         global client
         if client is None:
             GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
             if not GEMINI_API_KEY:
+                logger.error("GEMINI_API_KEY not configured")
                 raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured")
+            
+            logger.info("Initializing Gemini client")
             client = genai.Client(api_key=GEMINI_API_KEY)
         
         MAX_IMAGE_SIZE_MB = 10
@@ -43,28 +53,33 @@ async def try_on(
             "image/heif",
         }
 
+        # Validate person image
         if person_image.content_type not in ALLOWED_MIME_TYPES:
+            logger.error(f"Unsupported file type for person_image: {person_image.content_type}")
             raise HTTPException(
                 status_code=400, detail=f"Unsupported file type for person_image: {person_image.content_type}"
             )
 
         user_bytes = await person_image.read()
-
         size_in_mb_for_person_image = len(user_bytes) / (1024 * 1024)
         if size_in_mb_for_person_image > MAX_IMAGE_SIZE_MB:
+            logger.error(f"Person image too large: {size_in_mb_for_person_image}MB")
             raise HTTPException(status_code=400, detail="Image exceeds 10MB size limit for person_image")
         
+        # Validate cloth image
         if cloth_image.content_type not in ALLOWED_MIME_TYPES:
+            logger.error(f"Unsupported file type for cloth_image: {cloth_image.content_type}")
             raise HTTPException(
                 status_code=400, detail=f"Unsupported file type for cloth_image: {cloth_image.content_type}"
             )
 
         cloth_bytes = await cloth_image.read()
-
         size_in_mb_for_cloth_image = len(cloth_bytes) / (1024 * 1024)
         if size_in_mb_for_cloth_image > MAX_IMAGE_SIZE_MB:
+            logger.error(f"Cloth image too large: {size_in_mb_for_cloth_image}MB")
             raise HTTPException(status_code=400, detail="Image exceeds 10MB size limit for cloth_image")
 
+        logger.info("Images validated successfully")
 
         user_b64 = array_buffer_to_base64(user_bytes)
         cloth_b64 = array_buffer_to_base64(cloth_bytes)
@@ -155,6 +170,8 @@ async def try_on(
             ),
         ]        
         
+        logger.info("Calling Gemini API")
+        
         response = client.models.generate_content(
             model="gemini-2.0-flash-exp-image-generation",
             contents=contents,
@@ -163,8 +180,7 @@ async def try_on(
             )
         )
 
-
-        print(response)
+        logger.info("Gemini API response received")
         
         image_data = None
         text_response = "No Description available."
@@ -172,31 +188,33 @@ async def try_on(
             parts = response.candidates[0].content.parts
 
             if parts:
-                print("Number of parts in response:", len(parts))
+                logger.info(f"Number of parts in response: {len(parts)}")
 
                 for part in parts:
                     if hasattr(part, "inline_data") and part.inline_data:
                         image_data = part.inline_data.data
                         image_mime_type = getattr(part.inline_data, "mime_type", "image/png")
-                        print("Image data received, length:", len(image_data))
-                        print("MIME type:", image_mime_type)
+                        logger.info(f"Image data received, length: {len(image_data)}")
+                        logger.info(f"MIME type: {image_mime_type}")
 
                     elif hasattr(part, "text") and part.text:
                         text_response = part.text
                         preview = (text_response[:100] + "...") if len(text_response) > 100 else text_response
-                        print("Text response received:", preview)
+                        logger.info(f"Text response received: {preview}")
             else:
-                print("No parts found in the response candidate.")
+                logger.warning("No parts found in the response candidate.")
         else:
-            print("No candidates found in the API response.")
+            logger.warning("No candidates found in the API response.")
 
         image_url = None
         if image_data:
             image_base64 = base64.b64encode(image_data).decode("utf-8")
             image_url = f"data:{image_mime_type};base64,{image_base64}"
+            logger.info("Image URL generated successfully")
         else:
-            image_url = None
+            logger.warning("No image data received from API")
     
+        logger.info("Try-on request completed successfully")
         return JSONResponse(
         content={
             "image": image_url,
@@ -205,6 +223,6 @@ async def try_on(
         )
 
     except Exception as e:
-        print(f"Error in /api/try-on endpoint: {e}")
-        traceback.print_exc()
+        logger.error(f"Error in /api/try-on endpoint: {e}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail="Internal Server Error")

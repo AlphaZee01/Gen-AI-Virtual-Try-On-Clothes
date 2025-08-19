@@ -14,6 +14,10 @@ import {
 import ImageUpload from "./components/ImageUpload";
 import Footer from './components/Footer';
 
+// Configure axios base URL for production
+const API_BASE_URL = import.meta.env.PROD ? '' : 'http://localhost:8000';
+axios.defaults.baseURL = API_BASE_URL;
+
 function App() {
   const [personImage, setPersonImage] = useState(null);
   const [clothImage, setClothImage] = useState(null);
@@ -65,6 +69,7 @@ function App() {
     try {
       const response = await axios.post("/api/try-on", formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        timeout: 120000, // 2 minutes timeout
       });
 
       const newResult = {
@@ -78,9 +83,16 @@ function App() {
       setHistory((prev) => [newResult, ...prev]);
       toast.success("Virtual try-on completed successfully!");
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "An error occurred during processing"
-      );
+      console.error("API Error:", error);
+      if (error.code === 'ECONNABORTED') {
+        toast.error("Request timed out. Please try again.");
+      } else if (error.response?.status === 500) {
+        toast.error("Server error. Please check if the API key is configured.");
+      } else if (error.response?.data?.detail) {
+        toast.error(error.response.data.detail);
+      } else {
+        toast.error("An error occurred during processing. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

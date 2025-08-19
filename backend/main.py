@@ -1,28 +1,41 @@
 import os
 import sys
+import logging
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import HTTPException
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Add error handling for router import
 try:
     from routers import tryon
-    print("✅ Successfully imported tryon router")
+    logger.info("✅ Successfully imported tryon router")
 except Exception as e:
-    print(f"❌ Error importing tryon router: {e}")
+    logger.error(f"❌ Error importing tryon router: {e}")
     sys.exit(1)
 
 # Environment configuration
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 DEBUG = os.getenv("DEBUG", "true").lower() == "true"
 
-print(f"🚀 Starting Gen-AI Virtual Try-On API")
-print(f"📊 Environment: {ENVIRONMENT}")
-print(f"🔧 Debug mode: {DEBUG}")
-print(f"📁 Working directory: {os.getcwd()}")
-print(f"📁 Frontend dist path: {os.path.abspath('./frontend/dist')}")
+# Check for required environment variables
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY and ENVIRONMENT == "production":
+    logger.error("❌ GEMINI_API_KEY not configured in production environment")
+    sys.exit(1)
+elif not GEMINI_API_KEY:
+    logger.warning("⚠️ GEMINI_API_KEY not configured (development mode)")
+
+logger.info(f"🚀 Starting Gen-AI Virtual Try-On API")
+logger.info(f"📊 Environment: {ENVIRONMENT}")
+logger.info(f"🔧 Debug mode: {DEBUG}")
+logger.info(f"📁 Working directory: {os.getcwd()}")
+logger.info(f"📁 Frontend dist path: {os.path.abspath('./frontend/dist')}")
 
 app = FastAPI(
     title="Gen-AI Virtual Try-On API",
@@ -50,11 +63,11 @@ async def health_check():
 if ENVIRONMENT == "production":
     # Check if frontend build exists
     frontend_dist_path = "./frontend/dist"
-    print(f"🔍 Checking for frontend build at: {frontend_dist_path}")
-    print(f"📁 Frontend dist exists: {os.path.exists(frontend_dist_path)}")
+    logger.info(f"🔍 Checking for frontend build at: {frontend_dist_path}")
+    logger.info(f"📁 Frontend dist exists: {os.path.exists(frontend_dist_path)}")
     
     if os.path.exists(frontend_dist_path):
-        print("✅ Frontend build found, mounting static files")
+        logger.info("✅ Frontend build found, mounting static files")
         
         # Mount static assets (JS, CSS, images)
         app.mount("/assets", StaticFiles(directory=f"{frontend_dist_path}/assets"), name="assets")
@@ -77,6 +90,6 @@ if ENVIRONMENT == "production":
             # If not found, serve index.html for SPA routing
             return FileResponse(f"{frontend_dist_path}/index.html")
     else:
-        print("⚠️ Frontend build not found, static file serving disabled")
+        logger.warning("⚠️ Frontend build not found, static file serving disabled")
 
 app.include_router(tryon.router, prefix="/api")
