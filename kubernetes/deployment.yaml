@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gen-ai-virtual-tryon
+  labels:
+    app: gen-ai-virtual-tryon
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: gen-ai-virtual-tryon
+  template:
+    metadata:
+      labels:
+        app: gen-ai-virtual-tryon
+    spec:
+      containers:
+      - name: app
+        image: gen-ai-virtual-tryon:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: GOOGLE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: google-api-key
+        - name: ENVIRONMENT
+          value: "production"
+        - name: PORT
+          value: "8000"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: uploads
+          mountPath: /app/uploads
+      volumes:
+      - name: uploads
+        persistentVolumeClaim:
+          claimName: uploads-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gen-ai-virtual-tryon-service
+spec:
+  selector:
+    app: gen-ai-virtual-tryon
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: uploads-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secrets
+type: Opaque
+data:
+  google-api-key: <base64-encoded-api-key>
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gen-ai-virtual-tryon-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+  - host: your-domain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: gen-ai-virtual-tryon-service
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - your-domain.com
+    secretName: tls-secret

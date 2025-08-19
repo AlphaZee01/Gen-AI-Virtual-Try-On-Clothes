@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: gen-ai-virtual-tryon
+    env: python
+    plan: starter
+    buildCommand: |
+      # Install system dependencies
+      apt-get update && apt-get install -y nodejs npm
+      
+      # Build frontend
+      cd frontend
+      npm install
+      npm run build
+      cd ..
+      
+      # Install Python dependencies
+      cd backend
+      pip install poetry
+      poetry config virtualenvs.create false
+      poetry install --no-dev
+      cd ..
+    startCommand: |
+      cd backend
+      uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: false
+      - key: CORS_ORIGINS
+        value: https://gen-ai-virtual-tryon.onrender.com
+    healthCheckPath: /health
+    autoDeploy: true
+    branch: main
+
