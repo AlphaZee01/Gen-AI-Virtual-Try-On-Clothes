@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import HTTPException
 
 # Add error handling for router import
 try:
@@ -54,7 +55,9 @@ if ENVIRONMENT == "production":
     
     if os.path.exists(frontend_dist_path):
         print("✅ Frontend build found, mounting static files")
-        app.mount("/static", StaticFiles(directory=frontend_dist_path), name="static")
+        
+        # Mount static assets (JS, CSS, images)
+        app.mount("/assets", StaticFiles(directory=f"{frontend_dist_path}/assets"), name="assets")
         
         @app.get("/")
         async def serve_frontend():
@@ -62,6 +65,10 @@ if ENVIRONMENT == "production":
         
         @app.get("/{full_path:path}")
         async def serve_static_files(full_path: str):
+            # Skip API routes
+            if full_path.startswith("api/"):
+                raise HTTPException(status_code=404, detail="Not found")
+            
             # Try to serve static files first
             static_file_path = f"{frontend_dist_path}/{full_path}"
             if os.path.exists(static_file_path) and os.path.isfile(static_file_path):
