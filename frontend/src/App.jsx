@@ -2,31 +2,17 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Select } from 'antd'; 
-import {
-  Layout,
-  ConfigProvider,
-  theme,
-  Button,
-  Typography,
-  Space,
-  Switch,
-  Input,
-  Row,
-  Col,
-  Divider,
-} from "antd";
-import {
-  BulbOutlined,
-  BulbFilled,
-  GithubOutlined,
-  LinkedinOutlined,
-} from "@ant-design/icons";
+import { 
+  SunIcon, 
+  MoonIcon, 
+  PhotoIcon,
+  ArrowUpTrayIcon,
+  SparklesIcon,
+  ClockIcon
+} from "@heroicons/react/24/outline";
 
 import ImageUpload from "./components/ImageUpload";
-import Footer from './components/Footer'; 
-const { Header, Content} = Layout;
-const { Title, Text } = Typography;
+import Footer from './components/Footer';
 
 function App() {
   const [personImage, setPersonImage] = useState(null);
@@ -45,11 +31,7 @@ function App() {
   const [garmentType, setGarmentType] = useState("");
   const [style, setStyle] = useState("");
 
-  const { Option } = Select;
-
   const resultRef = useRef(null);
-
-  const { defaultAlgorithm, darkAlgorithm } = theme;
 
   useEffect(() => {
     localStorage.setItem("darkMode", JSON.stringify(isDarkMode));
@@ -104,316 +86,266 @@ function App() {
     }
   };
 
-  const bgColor = isDarkMode ? "#0f0f0f" : "#f9fafb";
-  const cardColor = isDarkMode ? "#1c1c1c" : "#ffffff";
-  const textColor = isDarkMode ? "#e4e4e4" : "#111827";
-  const subText = isDarkMode ? "#9ca3af" : "#4b5563";
-
   return (
-    <ConfigProvider
-      theme={{
-        algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
-        token: {
-          colorPrimary: "#0ea5e9",
-          borderRadius: 10,
-        },
-      }}
-    >
-      <Layout style={{ minHeight: "100vh", background: bgColor }}>
-        <Header
-          style={{
-            background: "transparent",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "1.5rem 2rem",
-          }}
-        >
-          <Title level={3} style={{ margin: 0, color: textColor }}>
-            👗 Virtual Try-On
-          </Title>
-          <Switch
-            checked={isDarkMode}
-            onChange={setIsDarkMode}
-            checkedChildren={<BulbFilled />}
-            unCheckedChildren={<BulbOutlined />}
-          />
-        </Header>
-        <Content style={{ padding: "2rem 1rem" }}>
-          <div className="max-w-5xl mx-auto">
-            <Title
-              level={1}
-              className="text-center"
-              style={{ color: textColor, marginBottom: 40 }}
+    <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+      {/* Header */}
+      <header className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <h1 className="text-2xl font-bold flex items-center">
+              <SparklesIcon className="w-8 h-8 mr-2 text-blue-500" />
+              Virtual Try-On
+            </h1>
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className={`p-2 rounded-lg transition-colors ${
+                isDarkMode 
+                  ? 'bg-gray-700 hover:bg-gray-600 text-yellow-400' 
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+              }`}
             >
-              Try-On Clothes in Seconds
-            </Title>
+              {isDarkMode ? (
+                <SunIcon className="w-5 h-5" />
+              ) : (
+                <MoonIcon className="w-5 h-5" />
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
 
-            <form onSubmit={handleSubmit}>
-              <Row gutter={[24, 24]}>
-                {/* Model Section */}
-                <Col xs={24} md={12}>
-                  <div
-                    style={{
-                      background: cardColor,
-                      padding: 24,
-                      borderRadius: 12,
-                    }}
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold mb-4">
+            Try-On Clothes in Seconds
+          </h2>
+          <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            Upload your photo and garment to see how it looks on you
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Model Section */}
+            <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-6`}>
+              <h3 className="text-xl font-semibold mb-6 flex items-center">
+                <PhotoIcon className="w-6 h-6 mr-2 text-blue-500" />
+                Model Image
+              </h3>
+
+              <ImageUpload
+                label="Upload Model Image"
+                onImageChange={setPersonImage}
+                isDarkMode={isDarkMode}
+              />
+
+              <div className="mt-6 space-y-4">
+                {/* Model Type */}
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Model Type
+                  </label>
+                  <select
+                    value={modelType}
+                    onChange={(e) => setModelType(e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
                   >
-                    <Title
-                      level={4}
-                      style={{ color: textColor, marginBottom: 16 }}
-                    >
-                      Model Image
-                    </Title>
+                    <option value="">Select model type</option>
+                    <option value="top">Top Half</option>
+                    <option value="bottom">Bottom Half</option>
+                    <option value="full">Full Body</option>
+                  </select>
+                </div>
 
-                    <ImageUpload
-                      label="Upload Model Image"
-                      onImageChange={setPersonImage}
-                      isDarkMode={isDarkMode}
-                    />
-
-                    <div className="mt-6 space-y-4">
-                      {/* Model Type */}
-                      <div>
-                        <Text style={{ color: subText }}>Model Type</Text>
-                        <Select
-                          placeholder="Select model type"
-                          style={{ width: "100%", marginTop: 4 }}
-                          value={modelType}
-                          onChange={setModelType}
-                        >
-                          <Option value="top">Top Half</Option>
-                          <Option value="bottom">Bottom Half</Option>
-                          <Option value="full">Full Body</Option>
-                        </Select>
-                      </div>
-
-                      {/* Gender */}
-                      <div>
-                        <Text style={{ color: subText }}>Gender</Text>
-                        <Select
-                          placeholder="Select gender"
-                          style={{ width: "100%", marginTop: 4 }}
-                          value={gender}
-                          onChange={setGender}
-                        >
-                          <Option value="male">Male</Option>
-                          <Option value="female">Female</Option>
-                          <Option value="unisex">Unisex</Option>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-                </Col>
-
-                {/* Garment Section */}
-                <Col xs={24} md={12}>
-                  <div
-                    style={{
-                      background: cardColor,
-                      padding: 24,
-                      borderRadius: 12,
-                    }}
+                {/* Gender */}
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Gender
+                  </label>
+                  <select
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
                   >
-                    <Title
-                      level={4}
-                      style={{ color: textColor, marginBottom: 16 }}
-                    >
-                      Garment Image
-                    </Title>
+                    <option value="">Select gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="unisex">Unisex</option>
+                  </select>
+                </div>
+              </div>
+            </div>
 
-                    <ImageUpload
-                      label="Upload Cloth Image"
-                      onImageChange={setClothImage}
-                      isDarkMode={isDarkMode}
-                    />
+            {/* Garment Section */}
+            <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-6`}>
+              <h3 className="text-xl font-semibold mb-6 flex items-center">
+                <ArrowUpTrayIcon className="w-6 h-6 mr-2 text-green-500" />
+                Garment Image
+              </h3>
 
-                    <div className="mt-6 space-y-4">
-                      {/* Garment Type */}
-                      <div>
-                        <Text style={{ color: subText }}>Garment Type</Text>
-                        <Select
-                          placeholder="Select garment type"
-                          style={{ width: "100%", marginTop: 4 }}
-                          value={garmentType}
-                          onChange={setGarmentType}
-                        >
-                          <Option value="shirt">Shirt</Option>
-                          <Option value="pants">Pants</Option>
-                          <Option value="jacket">Jacket</Option>
-                          <Option value="dress">Dress</Option>
-                          <Option value="tshirt">T-shirt</Option>
-                        </Select>
-                      </div>
+              <ImageUpload
+                label="Upload Cloth Image"
+                onImageChange={setClothImage}
+                isDarkMode={isDarkMode}
+              />
 
-                      {/* Style */}
-                      <div>
-                        <Text style={{ color: subText }}>Style</Text>
-                        <Select
-                          placeholder="Select style"
-                          style={{ width: "100%", marginTop: 4 }}
-                          value={style}
-                          onChange={setStyle}
-                        >
-                          <Option value="casual">Casual</Option>
-                          <Option value="formal">Formal</Option>
-                          <Option value="streetwear">Streetwear</Option>
-                          <Option value="traditional">Traditional</Option>
-                          <Option value="sports">Sportswear</Option>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-                </Col>
-              </Row>
+              <div className="mt-6 space-y-4">
+                {/* Garment Type */}
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Garment Type
+                  </label>
+                  <select
+                    value={garmentType}
+                    onChange={(e) => setGarmentType(e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  >
+                    <option value="">Select garment type</option>
+                    <option value="shirt">Shirt</option>
+                    <option value="pants">Pants</option>
+                    <option value="jacket">Jacket</option>
+                    <option value="dress">Dress</option>
+                    <option value="tshirt">T-shirt</option>
+                  </select>
+                </div>
 
-              {/* Instructions */}
-              <div style={{ marginTop: "2.5rem" }}>
-                <Title
-                  level={5}
-                  style={{ color: textColor, marginBottom: "0.5rem" }}
-                >
-                  Special Instructions
-                </Title>
-                <Input.TextArea
-                  value={instructions}
-                  onChange={(e) => setInstructions(e.target.value)}
-                  rows={4}
-                  placeholder="e.g. Fit for walking pose, crop top, side view preferred..."
-                  style={{
-                    borderRadius: 10,
-                    padding: "1rem",
-                    fontSize: "1rem",
-                    backgroundColor: isDarkMode ? "#1f1f1f" : "#ffffff",
-                    color: textColor,
-                    borderColor: isDarkMode ? "#333" : "#d1d5db",
-                  }}
+                {/* Style */}
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Style
+                  </label>
+                  <select
+                    value={style}
+                    onChange={(e) => setStyle(e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  >
+                    <option value="">Select style</option>
+                    <option value="casual">Casual</option>
+                    <option value="formal">Formal</option>
+                    <option value="streetwear">Streetwear</option>
+                    <option value="traditional">Traditional</option>
+                    <option value="sports">Sportswear</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Instructions */}
+          <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-6`}>
+            <h3 className="text-lg font-semibold mb-4">Special Instructions</h3>
+            <textarea
+              value={instructions}
+              onChange={(e) => setInstructions(e.target.value)}
+              rows={4}
+              placeholder="e.g. Fit for walking pose, crop top, side view preferred..."
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none ${
+                isDarkMode 
+                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+              }`}
+            />
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex justify-center">
+            <button
+              type="submit"
+              disabled={loading}
+              className={`px-8 py-3 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center ${
+                loading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700 transform hover:scale-105'
+              } text-white shadow-lg`}
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <SparklesIcon className="w-5 h-5 mr-2" />
+                  Try On
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+
+        {/* Results */}
+        {result && (
+          <div ref={resultRef} className="mt-16">
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-12">
+              <h3 className="text-3xl font-bold text-center mb-8">Your Try-On Result</h3>
+              <div className="flex justify-center">
+                <img
+                  src={result.resultImage}
+                  alt="Try-On Result"
+                  className="rounded-2xl shadow-2xl max-h-96"
                 />
               </div>
-
-              {/* Submit Button */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  marginTop: "3rem",
-                }}
-              >
-                <Button
-                  type="primary"
-                  size="large"
-                  htmlType="submit"
-                  loading={loading}
-                  style={{
-                    height: 48,
-                    width: 200,
-                    fontSize: 16,
-                    borderRadius: 8,
-                  }}
-                >
-                  {loading ? "Processing..." : "Try On"}
-                </Button>
-              </div>
-            </form>
-
-            {result && (
-              <div ref={resultRef} className="mt-20">
-                <Divider />
-                <Title
-                  level={3}
-                  style={{
-                    color: textColor,
-                    textAlign: "center",
-                    marginBottom: 32,
-                  }}
-                >
-                  Your Try-On Result
-                </Title>
-                <div className="flex justify-center">
-                  <img
-                    src={result.resultImage}
-                    alt="Try-On Result"
-                    style={{
-                      borderRadius: 16,
-                      boxShadow: "0 10px 40px rgba(0,0,0,0.3)",
-                      maxHeight: 480,
-                    }}
-                  />
-                </div>
-                <Text
-                  style={{
-                    display: "block",
-                    textAlign: "center",
-                    marginTop: 16,
-                    color: isDarkMode ? "#ffffff" : "#000000",
-                    fontSize: "1.25rem",
-                    fontWeight: "600"
-                  }}
-                >
-                  {result.text}
-                </Text>
-              </div>
-            )}
-
-            {history.length > 0 && (
-              <div className="mt-24">
-                <Divider />
-                <Title level={3} style={{ color: textColor, marginBottom: 32 }}>
-                  Previous Results
-                </Title>
-                <Row gutter={[24, 24]}>
-                  {history.map((item) => (
-                    <Col xs={24} sm={12} md={8} key={item.id}>
-                      <div
-                        style={{
-                          background: cardColor,
-                          padding: 16,
-                          borderRadius: 12,
-                        }}
-                      >
-                        <img
-                          src={item.resultImage}
-                          alt="Previous"
-                          style={{
-                            width: "100%",
-                            borderRadius: 10,
-                            marginBottom: 12,
-                          }}
-                        />
-                        <Text
-                          style={{
-                            display: "block",
-                            color: isDarkMode ? "#ffffff" : "#000000",
-                            fontSize: "1.25rem",
-                            fontWeight: "600",
-                            marginBottom: 4,
-                          }}
-                        >
-                          {item.text}
-                        </Text>
-                        <Text
-                          style={{
-                            color: isDarkMode ? "#777" : "#666",
-                            fontSize: 12,
-                          }}
-                        >
-                          {item.timestamp}
-                        </Text>
-                      </div>
-                    </Col>
-                  ))}
-                </Row>
-              </div>
-            )}
+              <p className="text-center mt-6 text-xl font-semibold">
+                {result.text}
+              </p>
+            </div>
           </div>
-        </Content>
+        )}
 
-        <Footer isDarkMode={isDarkMode} />
+        {/* History */}
+        {history.length > 0 && (
+          <div className="mt-16">
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-12">
+              <h3 className="text-3xl font-bold mb-8 flex items-center justify-center">
+                <ClockIcon className="w-8 h-8 mr-2 text-blue-500" />
+                Previous Results
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {history.map((item) => (
+                  <div
+                    key={item.id}
+                    className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-4`}
+                  >
+                    <img
+                      src={item.resultImage}
+                      alt="Previous"
+                      className="w-full rounded-lg mb-4"
+                    />
+                    <p className="font-semibold text-lg mb-2">
+                      {item.text}
+                    </p>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      {item.timestamp}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
 
-        <ToastContainer theme={isDarkMode ? "dark" : "light"} />
-      </Layout>
-    </ConfigProvider>
+      <Footer isDarkMode={isDarkMode} />
+
+      <ToastContainer theme={isDarkMode ? "dark" : "light"} />
+    </div>
   );
 }
 

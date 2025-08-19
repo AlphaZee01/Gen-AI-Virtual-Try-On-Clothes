@@ -1,56 +1,66 @@
-import { useState } from "react";
-import { Upload, Typography, message } from "antd";
-import { InboxOutlined, CloseCircleOutlined } from "@ant-design/icons";
-
-const { Title } = Typography;
-const { Dragger } = Upload;
+import { useState, useRef } from "react";
+import { PhotoIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 const ImageUpload = ({ label, onImageChange, isDarkMode = false }) => {
   const [preview, setPreview] = useState(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef(null);
 
-  const uploadProps = {
-    name: "file",
-    multiple: false,
-    maxCount: 1,
-    accept: "image/*",
-    showUploadList: false,
-    beforeUpload: (file) => {
-      const isImage = file.type.startsWith("image/");
-      if (!isImage) {
-        message.error("You can only upload image files!");
-        return Upload.LIST_IGNORE;
-      }
+  const handleFileSelect = (file) => {
+    const isImage = file.type.startsWith("image/");
+    if (!isImage) {
+      alert("You can only upload image files!");
+      return;
+    }
 
-      const isLt10M = file.size / 1024 / 1024 < 10;
-      if (!isLt10M) {
-        message.error("Image must be smaller than 10MB!");
-        return Upload.LIST_IGNORE;
-      }
+    const isLt10M = file.size / 1024 / 1024 < 10;
+    if (!isLt10M) {
+      alert("Image must be smaller than 10MB!");
+      return;
+    }
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
-        onImageChange(file);
-      };
-      reader.readAsDataURL(file);
-      return false;
-    },
-    onDrop: (e) => {
-      console.log("Dropped files", e.dataTransfer.files);
-    },
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreview(reader.result);
+      onImageChange(file);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileSelect(files[0]);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
   };
 
   const handleRemove = () => {
     setPreview(null);
     onImageChange(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   return (
     <div className="w-full transition-all duration-300 flex flex-col items-center">
       {label && (
-        <Title level={5} style={{ marginBottom: "1rem", textAlign: "center" }}>
+        <h4 className="text-lg font-semibold mb-4 text-center">
           {label}
-        </Title>
+        </h4>
       )}
 
       {preview ? (
@@ -59,55 +69,63 @@ const ImageUpload = ({ label, onImageChange, isDarkMode = false }) => {
             <img
               src={preview}
               alt="Preview"
-              className="h-[200px] w-[200px] object-contain rounded-lg shadow-md"
-              style={{ display: "block" }}
+              className="h-48 w-48 object-contain rounded-lg shadow-md"
             />
-
-            <CloseCircleOutlined
+            <button
               onClick={handleRemove}
-              style={{
-                position: "absolute",
-                top: -10,
-                right: -10,
-                fontSize: 20,
-                color: isDarkMode ? "#f87171" : "#ef4444", // red-400 or red-500
-                backgroundColor: isDarkMode ? "#1f1f1f" : "#ffffff",
-                borderRadius: "50%",
-                cursor: "pointer",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-                zIndex: 10,
-              }}
-            />
+              className={`absolute -top-2 -right-2 p-1 rounded-full shadow-lg transition-colors ${
+                isDarkMode 
+                  ? 'bg-gray-800 hover:bg-gray-700 text-red-400' 
+                  : 'bg-white hover:bg-gray-50 text-red-500'
+              }`}
+            >
+              <XMarkIcon className="w-5 h-5" />
+            </button>
           </div>
         </div>
       ) : (
-        <Dragger
-          {...uploadProps}
-          className="w-full max-w-xs p-4"
-          style={{
-            border: `1px dashed ${isDarkMode ? "#444" : "#d9d9d9"}`,
-            borderRadius: 12,
-            backgroundColor: isDarkMode ? "#1f1f1f" : "#fafafa",
-          }}
+        <div
+          className={`w-full max-w-xs p-8 border-2 border-dashed rounded-xl transition-all duration-200 cursor-pointer ${
+            isDragOver
+              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+              : isDarkMode
+              ? 'border-gray-600 bg-gray-800 hover:border-gray-500'
+              : 'border-gray-300 bg-gray-50 hover:border-gray-400'
+          }`}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onClick={() => fileInputRef.current?.click()}
         >
-          <p className="ant-upload-drag-icon">
-            <InboxOutlined
-              style={{ color: isDarkMode ? "#38bdf8" : "#1677ff" }}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleFileSelect(file);
+            }}
+            className="hidden"
+          />
+          
+          <div className="text-center">
+            <PhotoIcon 
+              className={`w-12 h-12 mx-auto mb-4 ${
+                isDarkMode ? 'text-blue-400' : 'text-blue-500'
+              }`}
             />
-          </p>
-          <p
-            className="ant-upload-text"
-            style={{ color: isDarkMode ? "#e5e5e5" : "#333" }}
-          >
-            Click or drag an image here to upload
-          </p>
-          <p
-            className="ant-upload-hint"
-            style={{ fontSize: 12, color: isDarkMode ? "#a1a1aa" : "#666" }}
-          >
-            Image only • Max size: 10MB
-          </p>
-        </Dragger>
+            <p className={`font-medium mb-2 ${
+              isDarkMode ? 'text-gray-200' : 'text-gray-700'
+            }`}>
+              Click or drag an image here to upload
+            </p>
+            <p className={`text-sm ${
+              isDarkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}>
+              Image only • Max size: 10MB
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );
