@@ -12,11 +12,11 @@ load_dotenv()
 
 router = APIRouter()
 
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-if not GOOGLE_API_KEY:
-    raise ValueError("Missing GOOGLE_API_KEY in .env")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("Missing GEMINI_API_KEY in .env")
 
-client = genai.Client(api_key=GOOGLE_API_KEY)
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 @router.post("/try-on")
 async def try_on(
