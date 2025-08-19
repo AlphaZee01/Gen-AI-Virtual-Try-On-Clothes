@@ -34,7 +34,7 @@ async def health_check():
 # Serve static files (frontend build)
 if ENVIRONMENT == "production":
     # Check if frontend build exists
-    frontend_dist_path = "../frontend/dist"
+    frontend_dist_path = "./frontend/dist"
     if os.path.exists(frontend_dist_path):
         app.mount("/static", StaticFiles(directory=frontend_dist_path), name="static")
         

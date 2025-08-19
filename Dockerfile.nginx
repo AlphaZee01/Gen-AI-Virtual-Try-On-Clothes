@@ -1,0 +1,17 @@
+# Nginx Dockerfile for production deployment
+FROM nginx:alpine
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Create directory for static files
+RUN mkdir -p /usr/share/nginx/html
+
+# Copy frontend build (this will be mounted as volume in docker-compose)
+# The frontend build is served by the FastAPI app in production mode
+
+# Expose ports
+EXPOSE 80 443
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
