@@ -4,18 +4,21 @@ import { PhotoIcon, XMarkIcon } from "@heroicons/react/24/outline";
 const ImageUpload = ({ label, onImageChange, isDarkMode = false }) => {
   const [preview, setPreview] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [error, setError] = useState("");
   const fileInputRef = useRef(null);
 
   const handleFileSelect = (file) => {
+    setError(""); // Clear previous errors
+    
     const isImage = file.type.startsWith("image/");
     if (!isImage) {
-      alert("You can only upload image files!");
+      setError("You can only upload image files!");
       return;
     }
 
     const isLt10M = file.size / 1024 / 1024 < 10;
     if (!isLt10M) {
-      alert("Image must be smaller than 10MB!");
+      setError("Image must be smaller than 10MB!");
       return;
     }
 
@@ -23,6 +26,9 @@ const ImageUpload = ({ label, onImageChange, isDarkMode = false }) => {
     reader.onloadend = () => {
       setPreview(reader.result);
       onImageChange(file);
+    };
+    reader.onerror = () => {
+      setError("Failed to read the image file. Please try again.");
     };
     reader.readAsDataURL(file);
   };
@@ -49,6 +55,7 @@ const ImageUpload = ({ label, onImageChange, isDarkMode = false }) => {
 
   const handleRemove = () => {
     setPreview(null);
+    setError("");
     onImageChange(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -63,6 +70,12 @@ const ImageUpload = ({ label, onImageChange, isDarkMode = false }) => {
         </h4>
       )}
 
+      {error && (
+        <div className="w-full mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          {error}
+        </div>
+      )}
+
       {preview ? (
         <div className="relative w-full flex justify-center items-center mt-4">
           <div className="relative">
@@ -73,13 +86,15 @@ const ImageUpload = ({ label, onImageChange, isDarkMode = false }) => {
             />
             <button
               onClick={handleRemove}
+              type="button"
               className={`absolute -top-2 -right-2 p-1 rounded-full shadow-lg transition-colors ${
                 isDarkMode 
                   ? 'bg-gray-800 hover:bg-gray-700 text-red-400' 
                   : 'bg-white hover:bg-gray-50 text-red-500'
               }`}
+              aria-label="Remove image"
             >
-              <XMarkIcon className="w-5 h-5" />
+              <XMarkIcon className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -96,6 +111,15 @@ const ImageUpload = ({ label, onImageChange, isDarkMode = false }) => {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onClick={() => fileInputRef.current?.click()}
+          role="button"
+          tabIndex={0}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              fileInputRef.current?.click();
+            }
+          }}
+          aria-label="Upload image"
         >
           <input
             ref={fileInputRef}
@@ -106,6 +130,7 @@ const ImageUpload = ({ label, onImageChange, isDarkMode = false }) => {
               if (file) handleFileSelect(file);
             }}
             className="hidden"
+            aria-describedby="file-upload-help"
           />
           
           <div className="text-center">
@@ -113,13 +138,14 @@ const ImageUpload = ({ label, onImageChange, isDarkMode = false }) => {
               className={`w-12 h-12 mx-auto mb-4 ${
                 isDarkMode ? 'text-blue-400' : 'text-blue-500'
               }`}
+              aria-hidden="true"
             />
             <p className={`font-medium mb-2 ${
               isDarkMode ? 'text-gray-200' : 'text-gray-700'
             }`}>
               Click or drag an image here to upload
             </p>
-            <p className={`text-sm ${
+            <p id="file-upload-help" className={`text-sm ${
               isDarkMode ? 'text-gray-400' : 'text-gray-500'
             }`}>
               Image only • Max size: 10MB

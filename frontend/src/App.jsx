@@ -47,10 +47,31 @@ function App() {
     }
   }, [result]);
 
+  // Input validation
+  const validateForm = () => {
+    if (!personImage) {
+      toast.error("Please upload a person image");
+      return false;
+    }
+    if (!clothImage) {
+      toast.error("Please upload a cloth image");
+      return false;
+    }
+    if (personImage.size > 10 * 1024 * 1024) {
+      toast.error("Person image must be smaller than 10MB");
+      return false;
+    }
+    if (clothImage.size > 10 * 1024 * 1024) {
+      toast.error("Cloth image must be smaller than 10MB");
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!personImage || !clothImage) {
-      toast.error("Please upload both person and cloth images");
+    
+    if (!validateForm()) {
       return;
     }
 
@@ -98,6 +119,12 @@ function App() {
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && e.ctrlKey) {
+      handleSubmit(e);
+    }
+  };
+
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       {/* Header */}
@@ -105,7 +132,7 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <h1 className="text-2xl font-bold flex items-center">
-              <SparklesIcon className="w-8 h-8 mr-2 text-blue-500" />
+              <SparklesIcon className="w-8 h-8 mr-2 text-blue-500" aria-hidden="true" />
               Virtual Try-On
             </h1>
             <button
@@ -115,11 +142,12 @@ function App() {
                   ? 'bg-gray-700 hover:bg-gray-600 text-yellow-400' 
                   : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
               }`}
+              aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
             >
               {isDarkMode ? (
-                <SunIcon className="w-5 h-5" />
+                <SunIcon className="w-5 h-5" aria-hidden="true" />
               ) : (
-                <MoonIcon className="w-5 h-5" />
+                <MoonIcon className="w-5 h-5" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -137,12 +165,12 @@ function App() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-8" onKeyPress={handleKeyPress}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Model Section */}
             <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-6`}>
               <h3 className="text-xl font-semibold mb-6 flex items-center">
-                <PhotoIcon className="w-6 h-6 mr-2 text-blue-500" />
+                <PhotoIcon className="w-6 h-6 mr-2 text-blue-500" aria-hidden="true" />
                 Model Image
               </h3>
 
@@ -155,10 +183,11 @@ function App() {
               <div className="mt-6 space-y-4">
                 {/* Model Type */}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="modelType" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Model Type
                   </label>
                   <select
+                    id="modelType"
                     value={modelType}
                     onChange={(e) => setModelType(e.target.value)}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
@@ -166,20 +195,25 @@ function App() {
                         ? 'bg-gray-700 border-gray-600 text-white' 
                         : 'bg-white border-gray-300 text-gray-900'
                     }`}
+                    aria-describedby="modelType-help"
                   >
                     <option value="">Select model type</option>
                     <option value="top">Top Half</option>
                     <option value="bottom">Bottom Half</option>
                     <option value="full">Full Body</option>
                   </select>
+                  <p id="modelType-help" className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Choose the part of the body to focus on
+                  </p>
                 </div>
 
                 {/* Gender */}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="gender" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Gender
                   </label>
                   <select
+                    id="gender"
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
@@ -200,7 +234,7 @@ function App() {
             {/* Garment Section */}
             <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-6`}>
               <h3 className="text-xl font-semibold mb-6 flex items-center">
-                <ArrowUpTrayIcon className="w-6 h-6 mr-2 text-green-500" />
+                <ArrowUpTrayIcon className="w-6 h-6 mr-2 text-green-500" aria-hidden="true" />
                 Garment Image
               </h3>
 
@@ -213,10 +247,11 @@ function App() {
               <div className="mt-6 space-y-4">
                 {/* Garment Type */}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="garmentType" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Garment Type
                   </label>
                   <select
+                    id="garmentType"
                     value={garmentType}
                     onChange={(e) => setGarmentType(e.target.value)}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
@@ -236,10 +271,11 @@ function App() {
 
                 {/* Style */}
                 <div>
-                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <label htmlFor="style" className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Style
                   </label>
                   <select
+                    id="style"
                     value={style}
                     onChange={(e) => setStyle(e.target.value)}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
@@ -273,7 +309,11 @@ function App() {
                   ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                   : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
               }`}
+              aria-describedby="instructions-help"
             />
+            <p id="instructions-help" className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              Optional: Add specific instructions for the AI (Ctrl+Enter to submit)
+            </p>
           </div>
 
           {/* Submit Button */}
@@ -286,20 +326,24 @@ function App() {
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-blue-600 hover:bg-blue-700 transform hover:scale-105'
               } text-white shadow-lg`}
+              aria-describedby="submit-help"
             >
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" aria-hidden="true"></div>
                   Processing...
                 </>
               ) : (
                 <>
-                  <SparklesIcon className="w-5 h-5 mr-2" />
+                  <SparklesIcon className="w-5 h-5 mr-2" aria-hidden="true" />
                   Try On
                 </>
               )}
             </button>
           </div>
+          <p id="submit-help" className={`text-center text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            Processing may take up to 2 minutes
+          </p>
         </form>
 
         {/* Results */}
@@ -312,6 +356,7 @@ function App() {
                   src={result.resultImage}
                   alt="Try-On Result"
                   className="rounded-2xl shadow-2xl max-h-96"
+                  loading="lazy"
                 />
               </div>
               <p className="text-center mt-6 text-xl font-semibold">
@@ -326,7 +371,7 @@ function App() {
           <div className="mt-16">
             <div className="border-t border-gray-200 dark:border-gray-700 pt-12">
               <h3 className="text-3xl font-bold mb-8 flex items-center justify-center">
-                <ClockIcon className="w-8 h-8 mr-2 text-blue-500" />
+                <ClockIcon className="w-8 h-8 mr-2 text-blue-500" aria-hidden="true" />
                 Previous Results
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -337,8 +382,9 @@ function App() {
                   >
                     <img
                       src={item.resultImage}
-                      alt="Previous"
+                      alt="Previous try-on result"
                       className="w-full rounded-lg mb-4"
+                      loading="lazy"
                     />
                     <p className="font-semibold text-lg mb-2">
                       {item.text}
