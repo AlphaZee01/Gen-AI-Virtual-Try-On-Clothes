@@ -61,19 +61,21 @@ RUN mkdir -p /app/uploads
 
 # Create a non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
-USER appuser
 
-# Expose port (will be overridden by Render's PORT env var)
+# Expose port
 EXPOSE 8000
 
 # Set environment variables
 ENV PYTHONPATH=/app/backend
-ENV ENVIRONMENT=production
-ENV DEBUG=false
+ENV PORT=8000
+ENV PATH="/usr/local/bin:$PATH"
+
+# Switch to non-root user
+USER appuser
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
+    CMD /usr/bin/curl -f http://localhost:8000/health || exit 1
 
-# Run the application with better error handling
-CMD ["sh", "-c", "echo 'Starting application on port ${PORT:-8000}' && uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Run the application
+CMD ["python", "-m", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
